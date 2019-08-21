@@ -1,0 +1,12 @@
+*.aux
+*.synctex.gz
+*.log
+*.sage-chat
+*.bak
+*.bac
+*.swp
+*.out
+*.nav
+*.toc
+*.snm
+*.vrb
