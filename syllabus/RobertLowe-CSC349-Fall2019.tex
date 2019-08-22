@@ -1,0 +1,274 @@
+% Don't touch this %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[11pt]{article}
+\usepackage{fullpage}
+\usepackage[left=1in,top=1in,right=1in,bottom=1in,headheight=3ex,headsep=3ex]{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{longtable}
+
+\newcommand{\blankline}{\quad\pagebreak[2]}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Modify Course title, instructor name, semester here %%%%%%%%
+
+
+\title{CSC349: Compiler Construction}
+\author{Dr. Robert Lowe}
+\date{Fall, 2019}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Don't touch this %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[sc]{mathpazo}
+\linespread{1.05} % Palatino needs more leading (space between lines)
+\usepackage[T1]{fontenc}
+\usepackage[mmddyyyy]{datetime}% http://ctan.org/pkg/datetime
+\usepackage{advdate}% http://ctan.org/pkg/advdate
+\newdateformat{syldate}{\twodigit{\THEMONTH}/\twodigit{\THEDAY}}
+\newsavebox{\MONDAY}\savebox{\MONDAY}{Mon}% Mon
+\newcommand{\week}[1]{%
+%  \cleardate{mydate}% Clear date
+% \newdate{mydate}{\the\day}{\the\month}{\the\year}% Store date
+  \paragraph*{\kern-2ex\quad #1, \syldate{\today} - \AdvanceDate[4]\syldate{\today}:}% Set heading  \quad #1
+%  \setbox1=\hbox{\shortdayofweekname{\getdateday{mydate}}{\getdatemonth{mydate}}{\getdateyear{mydate}}}%
+  \ifdim\wd1=\wd\MONDAY
+    \AdvanceDate[7]
+  \else
+    \AdvanceDate[7]
+  \fi%
+}
+\usepackage{setspace}
+\usepackage{multicol}
+%\usepackage{indentfirst}
+\usepackage{fancyhdr,lastpage}
+\usepackage{url}
+\pagestyle{fancy}
+\usepackage{hyperref}
+\usepackage{lastpage}
+\usepackage{amsmath}
+\usepackage{layout}
+
+\lhead{}
+\chead{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Modify header here %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\rhead{\footnotesize CSC3490-01 Fall 2019}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Don't touch this %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\lfoot{}
+\cfoot{\small \thepage/\pageref*{LastPage}}
+\rfoot{}
+
+\usepackage{array, xcolor}
+\usepackage{color,hyperref}
+\definecolor{clemsonorange}{HTML}{EA6A20}
+\hypersetup{colorlinks,breaklinks,linkcolor=clemsonorange,urlcolor=clemsonorange,anchorcolor=clemsonorange,citecolor=black}
+
+\begin{document}
+
+\maketitle
+
+\blankline
+
+\begin{tabular*}{.93\textwidth}{@{\extracolsep{\fill}}lr}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Modify information %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+E-mail: \texttt{robert.lowe@maryvillecollege.edu} & Office Phone: 865-981-8169 \\
+
+ Office Hours: MWF 1:00PM -- 2:00PM, TR 10:00AM -- 11:00AM  &  Class Hours: TR 11:00 -- 12:15\\
+
+ Office: SSC 214 & Class Room: SSC 231\\
+\hline
+\end{tabular*}
+
+\vspace{5 mm}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Course Description}
+This course covers the construction of a compiler for a simple
+programming language.  The topics to be studied include formal
+grammars, lexical analysis, parsing, and code generation.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Textbook}
+{\em Recursive Descent Compiling} by A.J.T Davie and R. Morrison,
+Ellis Horwood, 1981 (PDF on the wiki)
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Goals}
+Upon successful completion of this course, students will:
+\begin{enumerate}
+    \item Understand formal grammars.
+    \item Be able to evaluate the quality of a given grammar.
+    \item Construct lexical analyzers.
+    \item Construct parsers using recursive descent.
+    \item Construct compilers.
+\end{enumerate}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Methods of Instruction}
+\begin{itemize}
+    \item Lecture
+    \item Course Projects
+    \item Reading
+    \item Exams
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Grading}
+\begin{tabular}{|l|r|}
+    \hline
+    {\bf Category} & {\bf Weight} \\
+    \hline
+    Project & 70\%\\
+    \hline
+    Exams & 20\%\\
+    \hline
+    Class Participation & 10\% \\
+    \hline
+\end{tabular}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Schedule}
+\input{fall2019-schedule}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Classroom Policies and Expectations}
+In order to ensure a happy and successful semester, I request that you:
+
+\begin{itemize}
+\item Silence all cell phones during class. Texting and driving is
+deadly. Texting and learning is worse. I know when you are texting,
+and it distracts me. Worse, it will distract students around you.
+Please be courteous to each other and refrain from surfing the web and
+texting during class.
+\item Come to class well rested, well fed, and ready to work and learn.
+\item Be courteous and respectful of your classmates. Try to make
+everyone sitting around you happy to see you. A community of happy
+learners is far more successful than a collection of embittered
+individuals.
+\item Always bring required materials to class.
+\item Ask lots of questions! I understand that you like the sound of
+my voice. I've always enjoyed it, but you will get much more out of
+this course if you ask questions. If you are confused about a topic,
+I guarantee you that at least one other person in the room is as well,
+so don't be shy about speaking up. Learning is best done as
+a dialog, your professors love answering questions!
+\end{itemize}
+
+Of course, these guidelines are not quite specific enough for some
+questions. More detailed and legalistic policies follow.
+
+\subsection*{Attendance}
+You should strive for perfect attendance! Many of the concepts we will
+cover can be quite confusing without proper context and guidance. If
+you are absent, you will miss out on this, and so you will easily fall
+behind. Of course, sometimes life happens and you may need to miss
+class. My policy is that you must attend at least 80\% of class
+meetings in order to pass the class. If you miss more than 20\% of the
+class meetings, unless you have been granted an exception, you will
+receive an automatic ``F'' for the course. Also, note the days
+of the exams in the schedule. If these dates change, I will notify you
+at least week in advance; however, they are not likely to change. If
+you must miss an exam period, you will need to make arrangements to
+take the exam before the scheduled day. Failure to take an exam on or
+before an exam period will result in a grade of zero for that exam.  
+
+\subsection*{Getting Help}
+I will do my best to make sure help is readily available to you. You
+can come see me during my scheduled office hours. If you see me in my
+office and it is not an office hour (a very common occurrence) feel
+free to come in and ask any question you like. The same goes for when
+you see me around campus. Feel free to approach me and chat with me at
+any time! Also, I am available by email and will typically respond
+within one business day. I typically do not check my email after
+6:00PM or on weekends, however, so there may be a delay during those
+times.
+
+\subsection*{Due Dates and Late Work}
+Due dates will be provided with each assignment. Except in very rare
+emergencies, no individual extensions will be granted. Late work will
+receive a grade of zero. This means that getting help is all
+the more important! I never grant individual extensions to
+assignments, but if lots of people express confusion to me, I am much
+more likely to extend the assignment's due date for the entire
+class. If no one asks me questions about an assignment, I will assume
+everything is going fine and will act accordingly.
+
+\subsection*{Collaboration}
+I encourage you to form study groups and consult with each other.
+However, each individual in that group must do their own work.
+I realize that this can be a tricky dynamic to work with. If you ever
+think you may be getting too much help from another student, then you
+probably are.
+
+Acceptable collaboration would include:
+\begin{itemize}
+\item Asking for help on the approach to a problem.
+\item Asking for help in locating references in books and/or on the internet.
+\item Reading texts together or forming study groups for exams.
+\end{itemize}
+
+Unacceptable levels of collaboration include:
+\begin{itemize}
+\item Showing completed solutions to each other.
+\item Asking another student what a specific answer is.
+\item Allowing another student to copy an assignment.
+\end{itemize}
+
+Any wholesale copying will result in a grade of zero on the assignment for all students involved. This policy is, of course, different for group projects. Unless otherwise instructed, I expect you to submit only your own work for grading.
+
+\subsection*{Academic Honesty}
+Academic honesty is a very serious issue. All work that you present as
+your own must be your own work. Copying someone else's work in any
+way shape or form is unacceptable unless proper attribution is given.
+I am, of course, referring to plagiarism. Plagiarism is not always
+a blatant act. In fact, most of the time it takes very subtle forms
+such as:
+
+\begin{itemize}
+\item Presenting an idea that you have read without citing a source.
+\item Copying code from a website.
+\item Copying steps for a mathematical problem from a website.
+\item Using pictures and/or clipart without attribution.
+\end{itemize}
+
+As a rule, plagiarism is unspeakably ugly to academic professionals.
+Copying without attribution is, in short, a great way to get on your
+professor's bad side. Also, the Maryville College policy is that
+after 3 instances of plagiarism, you are referred to an academic
+honesty board for disciplinary action. So please, do not commit this
+heinous deed!
+
+If I catch you in an act of plagiarism, the first offense will result
+in a grade of zero and a report will be written and filed with
+academic affairs (not to mention a rather unpleasant conversation for
+both of us). The second offense will result in a failing grade for the
+course along with a second report.
+
+\subsection*{Inclement Weather}
+Ah, East Tennessee. Normally pleasant and temperate, but at other
+times we are in the midst of a raging whirlpool of blizzards and
+tornadoes! Should Maryville College close, an announcement will be
+made on the website, in the local media, and via text message (if
+you've signed up for the alerts). So long as the college is open,
+we will meet and have class. If the college is closed, I will revise
+our schedule upon our return.
+
+\subsection*{Students with Disabilities}
+Students with a disability requiring accommodations or any student who
+believes that they will require accommodations should contact Kim
+Ochsenbein in the Academic Support Center located in the lower level
+of Thaw Hall (865) 981-8124. Students are encouraged to make contact
+before or during the first week of classes.
+\end{document}
