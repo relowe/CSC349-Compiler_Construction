@@ -1,0 +1,334 @@
+\documentclass{beamer}
+\mode<presentation>
+{
+  \usetheme{Warsaw}
+  \definecolor{mcgarnet}{rgb}{0.38, 0, 0.08}
+  \definecolor{mcgray}{rgb}{0.6, 0.6, 0.6}
+  \setbeamercolor{structure}{fg=mcgarnet,bg=mcgray}
+  %\setbeamercovered{transparent}
+}
+
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{tikz}
+\usepackage{graphicx}
+
+\newcommand{\imagesource}[1]{{\centering\hfill\break\hbox{\scriptsize Image Source:\thinspace{\small\itshape #1}}\par}}
+
+\title{01 - Introduction and Math Preliminaries}
+
+
+\author{Dr. Robert Lowe\\}
+
+\institute[Maryville College] % (optional, but mostly needed)
+{
+  Division of Mathematics and Computer Science\\
+  Maryville College
+}
+
+\date[]{}
+\subject{}
+
+\pgfdeclareimage[height=0.5cm]{university-logo}{images/Maryville-College}
+\logo{\pgfuseimage{university-logo}}
+
+
+
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>{Outline}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Outline}
+  \tableofcontents
+\end{frame}
+
+
+% Structuring a talk is a difficult task and the following structure
+% may not be suitable. Here are some rules that apply for this
+% solution: 
+
+% - Exactly two or three sections (other than the summary).
+% - At *most* three subsections per section.
+% - Talk about 30s to 2min per frame. So there should be between about
+%   15 and 30 frames, all told.
+
+% - A conference audience is likely to know very little of what you
+%   are going to talk about. So *simplify*!
+% - In a 20min talk, getting the main ideas across is hard
+%   enough. Leave out details, even if it means being less precise than
+%   you think necessary.
+% - If you omit details that are vital to the proof/implementation,
+%   just say so once. Everybody will be happy with that.
+
+\section{Introduction to Compilers}
+
+\begin{frame}{What is a compiler?}
+    
+    A compiler ...
+    \begin{itemize}[<+(1)->]
+       \item verifies the validity of the source program.
+       \item translate a source program into an object program.
+       \item translates a source program without changing its semantic meaning.
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Program Stages}
+    \begin{itemize}[<+(1)->]
+        \item Compile Time
+        \begin{itemize}
+            \item Lexicographical Properties of the Program
+            \item Validation
+            \item Code Production
+        \end{itemize}
+
+        \item Load Time
+        \begin{itemize}
+            \item Loading and linking of shared libraries
+            \item Relocation of Code
+        \end{itemize}
+
+        \item Run Time
+        \begin{itemize}
+            \item Program Execution
+            \item Dynamic Behavior of the Program
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Phases of Compilation}
+    \begin{enumerate}[<+->]
+        \item Lexical Analysis
+        \item Syntax Analysis
+        \item Code Generation
+    \end{enumerate}
+\end{frame}
+
+
+\begin{frame}{Lexical Analysis}
+    \begin{itemize}[<+->]
+        \item Analysis of {\bf microsyntax} of a language.
+        \item Breaking a program into tokens (aka basic symbols or lexemes)
+        \item Not always trivial! (Context can alter tokens)
+        \newline Consider the following Fortran:
+        \begin{itemize}
+            \item {\tt DO 1 I=1,12}
+            \item {\tt DO 1 I=1.12}
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Syntax Analysis}
+    \begin{itemize}[<+->]
+        \item Analyzes the structure of the program.
+        \item Validates structure.  (i.e. Do \{ \} match?)
+        \item Results in a {\bf parse tree} representation of the program.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Code Generation}
+
+    The code generator ...
+    \begin{itemize}[<+->]
+        \item traverses the parse tree.
+        \item generates object code as it descends the tree.
+        \item optimizes object code.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Recursive Descent Compiling}
+    \begin{itemize}[<+->]
+        \item Each major language structure has a corresponding recognizer routine.
+        \item These methods call each other as needed.
+        \item As the methods get called, they construct a parse tree.
+        \item Errors are detected as the recognizers execute.
+        \item Limited in scope to $\mathrm{LL}(1)$ languages.
+    \end{itemize}
+\end{frame}
+
+\section{S-Algol}
+
+\begin{frame}{Language Properties}
+    \begin{itemize}[<+->]
+        \item ALGOL Inspired Language
+        \item Sequence Level Scoping
+        \item Types are Inferred at Declaration
+        \item Vectors for Lists of Variables
+        \item Structures
+        \item Procedures
+        \item Designed as a Teaching Language
+        \item Powerful Enough for Systems Programming
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Variable Declarations}
+
+    \begin{verbatim}
+let x := 1              !has type int i.e.integer
+let y := 2.7            !has type real
+let switch := x<pi      !has type bool i.e. boolean
+let name := "Bill"      !has type string
+let e=2.71828           !real constant
+let lbl := "here"       !has type cstring
+    \end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]{Structures}
+\begin{verbatim}
+structre identifier(cstring name ;real val)
+let var := identifier("x", 2.14)
+\end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]{Procedures}
+\begin{verbatim}
+procedure count(cint s,e)
+begin
+  let x := s
+  while x <= e do
+  begin
+    write x
+    x := x + 1
+  end
+end
+
+procedure convert(cint L,S,D->real)
+    L+S/20+D/240  
+\end{verbatim}
+\end{frame}
+
+
+\section{Math Preliminaries}
+\begin{frame}{Closure}
+\begin{itemize}[<+->]
+    \item {\bf Closure} - A sequence of objects which close a set of
+    objects.
+    \item We often speak of closure of grammars, languages, and sets.
+    \item Computing closures reveal vital information about
+    a language.
+    \item  We will get more formal with closures later.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Alphabets and Languages}
+\begin{itemize}[<+->]
+    \item An alphabet, $A$, is a finite set of symbols.
+    For example:
+    \[
+        A=\{a, b, c\}
+    \]
+    \item A language, $L$, is the set of sequences or strings over
+    some alphabet. For example, we may have:
+    \[
+        L=A \times A
+    \]
+    \item Expanding the above language yields:
+    \[
+        L=\{aa, ab, ac, ba, bb, bc, ca, cb, cc\}
+    \]
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Strings of Length $k$}
+\begin{itemize}[<+->]
+    \item Often we wish to express arbitrarily long strings of
+        alphabet $A$.
+    \item Strings of length $k$ are written as $A^k$ where $k$
+        represents the number of times the Cartesian product is applied to
+        $A$ and itself.
+    \item For example:
+    \[
+    A^3 = A \times A \times A
+    \]
+    Represents all strings consisting of $3$ symbols from $A$.
+    \item $A^0$ is the empty string, we often give it the special
+    symbol $\lambda$
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Reflexive Transitive Closure}
+\begin{itemize}[<+->]
+    \item Suppose we take $A^k$ for all values $k=[0\ldots \infty]$
+    \item The union of every such set of sequences is called $A^*$
+    \[
+        A^* = \bigcup\limits_{n=0}^{\infty} A^n
+    \]
+    \item $A^*$ is the reflexive transitive closure of $A$
+    \item Also known as the Kleene closure (after its definer, Stephen
+    Kleene).
+    \item $A^*$ is the language consisting of every possible string
+    over the alphabet $A$.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Transitive Closure}
+\begin{itemize}[<+->]
+    \item Sometimes, we wish to exclude $\lambda$ from the set of
+    strings.  This is the $A^+$ closure.
+    \item $A^+ = A^* - \lambda$
+    \item Fully stated:
+    \[
+        A^+ = \bigcup\limits_{n=1}^{\infty} A^n     
+    \]
+    \item This is called the Transitive Closure of $A$
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Concatenation}
+\begin{itemize}[<+->]
+    \item {\bf Concatenation} is an operator which combines two strings.
+    \item Concatenation (represented as a $.$) defines an algebra over
+        $A^*$.
+    \item $\lambda$ is the unit element since $\forall s \in A^*$:
+        \[
+            s . \lambda = \lambda . s = s
+        \]
+    \item Concatenation is associative, but not commutative.
+    \item {\bf Closure} is the smallest set containing a given basic
+        set closed under certain operations.
+    \item Hence $A^*$ is the reflexive transitive closure of $A$ under
+        the operation of concatenation.
+    \item Also, $A^+$ is the transitive closure of $A$ under the 
+        operation of concatenation.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Languages and Strings}
+\begin{itemize}[<+->]
+    \item If we think of a programming language, $L$ is the set of all
+        strings which form a valid program.
+    \item Usually, we think of the alphabet of a programming
+        language as being its individual lexemes.
+    \item For almost all programming languages:
+        \[
+            L \subset A^*
+        \]
+        Where $A$ is the alphabet of lexemes of the language.
+    \item A compiler, is therefore formally stated as a device which,
+    given a string $s$, a source language $L$, and an object language
+    $L'$:
+    \newline $\forall s\in A^*$:
+    \begin{enumerate}
+        \item Decides $s \stackrel{?}{\in} L$
+        \item Computes the function $L \mapsto L'$ on $s$
+    \end{enumerate}
+\end{itemize}
+\end{frame}
+
+\end{document}
+
+
