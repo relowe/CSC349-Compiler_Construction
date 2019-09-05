@@ -1,0 +1,1 @@
+exec ld -m elf_i386 "$@"

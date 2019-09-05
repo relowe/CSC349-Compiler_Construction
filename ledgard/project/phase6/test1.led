@@ -1,0 +1,24 @@
+program
+   A: integer;
+   B: boolean;
+   C: array[1..10] of integer;
+   D: array[11..20] of boolean;
+   E: array[16..25] of array[26..35] of integer;
+   F: array[36..45] of array[46..55] of boolean;
+   I, J, K, L: integer;
+begin
+   A := (0 - 99) + 0;
+   B := true;
+   output A, B;
+   A := 99999 / A;
+   B := false;
+   output B, A;
+   A := 2000000000;
+   B := not B;
+   output A, B;
+   D[11] := true;
+   F[40][50] := true;
+   output D[11], D[12], F[36][46];
+   D[22] := not D[22];
+   output D[11], D[12], F[36][46];
+end;

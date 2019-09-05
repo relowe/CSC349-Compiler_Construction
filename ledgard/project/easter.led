@@ -1,0 +1,45 @@
+-- Program to calculate date of Easter, given the year
+-- (based on algorithm from Knuth, vol. 1)
+--
+-- Note that "x mod y" is defined as "x - y * floor(x/y)", where
+-- "floor(x)" is "the greatest integer less than or equal to x."
+-- When a and b are both positive integers, the integer division 
+-- a/b is equivalent to floor(a/b)
+program
+   G, C, X, Z, D, E, N: integer;    -- variables from algorithm
+   DN: integer;                     -- D + N, for mod in E7
+   MONTH, DAY, YEAR: integer;       -- input & results
+begin
+   input YEAR;
+      -- E1:  Golden number.
+   G := (YEAR - (19 * (YEAR / 19))) + 1;
+      -- E2:  Century.
+   C := (YEAR / 100) + 1;
+      -- E3:  Corrections.
+   X := ((3 * C) / 4) - 12;
+   Z := (((8 * C) + 5) / 25) - 5;
+      -- E4:  Find Sunday.
+   D := (((5 * YEAR) / 4) - X) - 10;
+      -- E5:  Epact.
+   E := (((11 * G) + 20) + Z) - X;
+   E := E - (30 * (E / 30));   -- E := E mod 30
+   if ((E == 25) and (G > 11)) or (E == 24) then
+      E := E + 1;
+   end if;
+      -- E6:  Find full moon.
+   N := 44 - E;
+   if N < 21 then N := N + 30; end if;
+      -- E7:  Advance to Sunday.
+   DN := D + N;
+   DN := DN - (7 * (DN / 7));   -- DN := DN mod 7
+   N := (N + 7) - DN;
+      -- E8:  Get month.
+   if N > 31 then
+      MONTH := 4;
+      DAY := N - 31;
+   else
+      MONTH := 3;
+      DAY := N;
+   end if;
+   output DAY, MONTH, YEAR;
+end;

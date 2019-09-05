@@ -1,0 +1,53 @@
+-- Ledgard test program
+program        -- program
+   I: array[3..5] of array[1..77] of integer;
+   DUPL, DUPL: integer;
+   J,K,L: boolean;
+   K: array[1..2] of integer;
+   L: integer;
+begin          -- begin
+   input I,J,K,L,M,INPUT[7],N,O,P[3][not J+(7*4)][true / false];
+   output A,B[2 * (I + 1)],OUTPUT[GEORGE][III][9+(ABC-DEF)],C;
+   A[(9999)][I/2] := (not 3 and (2 < 3)) + ((5 or 9) <= 999);
+   A := Q; -- comment
+   while X <> UNDECLARED  -- comment
+   loop
+      B := true or false;
+   end loop;
+   -- comment
+   while true loop B := XYZ; end loop;
+   if A
+      then B := C;
+      else D := E;
+   end if;
+   if A then B := C; X := Y; else D := E; Y := Z; end if;
+   X := A < (B <=
+               (C ==
+                  (D <>
+                     (E >=
+                        (F >
+                           (G +
+                              (H -
+                                 (I *
+                                    (J /
+                                       (K and
+                                          (L or M)
+                                       )
+                                    )
+                                 )
+                              )
+                           )
+                        )
+                     )
+                  )
+               )
+            );
+   if CONDITION then A := A + 1; end if;
+   I[4][33] :=: I[3][44];
+end;           -- end
+
+-- trailing comment with blank lines
+
+
+
+

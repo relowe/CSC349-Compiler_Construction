@@ -1,0 +1,25 @@
+   -- print a truth table
+program
+   P, Q, NOT_P, NOT_Q, P_AND_Q, P_OR_Q: boolean;
+begin
+   P := true; Q := true;
+   NOT_P := not P; NOT_Q := not Q;
+   P_AND_Q := P and Q; P_OR_Q := P or Q;
+   output P, Q, NOT_P, NOT_Q, P_AND_Q, P_OR_Q;
+
+   Q := not Q;
+   NOT_P := not P; NOT_Q := not Q;
+   P_AND_Q := P and Q; P_OR_Q := P or Q;
+   output P, Q, NOT_P, NOT_Q, P_AND_Q, P_OR_Q;
+
+   P := not P;
+   Q := not Q;
+   NOT_P := not P; NOT_Q := not Q;
+   P_AND_Q := P and Q; P_OR_Q := P or Q;
+   output P, Q, NOT_P, NOT_Q, P_AND_Q, P_OR_Q;
+
+   Q := not Q;
+   NOT_P := not P; NOT_Q := not Q;
+   P_AND_Q := P and Q; P_OR_Q := P or Q;
+   output P, Q, NOT_P, NOT_Q, P_AND_Q, P_OR_Q;
+end;

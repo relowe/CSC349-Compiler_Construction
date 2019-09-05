@@ -1,0 +1,5 @@
+program
+   -- missing declaration
+begin
+   A := 5;
+end;

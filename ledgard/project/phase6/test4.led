@@ -1,0 +1,19 @@
+-- test array access and row-major layout (needs adjustment of .s file
+-- to make A & B arrays occupy the same memory locations)
+program
+   A: array[101..160] of integer;
+   B: array[1..10] of array[11..16] of integer;
+   I: integer;
+begin
+   I := 1;
+   while I <= 60 loop
+      A[100 + I] := I;
+      I := I + 1;
+   end loop;
+   I := 1;
+   while I <= 10 loop
+      output B[I][11], B[I][12], B[I][13], B[I][14], B[I][15], B[I][16];
+      I := I + 1;
+   end loop;
+   output A[10];
+end;

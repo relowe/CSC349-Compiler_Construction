@@ -1,0 +1,112 @@
+.section .bss
+	.lcomm	I,4
+	.lcomm	J,4
+
+.section .text
+.globl  _start
+_start:
+	xorl    %esi,%esi
+	leal    I(%esi),%eax
+	pushl   %eax
+	pushl   $1
+	popl    %eax
+	popl    %ebx
+	movl    %eax,(%ebx)
+label1:
+	xorl    %esi,%esi
+	leal    I(%esi),%eax
+	pushl   %eax
+	popl    %eax
+	pushl   (%eax)
+	pushl   $5
+	popl    %ebx
+	popl    %eax
+	xorl    %ecx,%ecx
+	cmpl    %ebx,%eax
+	jnle    1f
+	incl    %ecx
+1:	pushl   %ecx
+	popl    %eax
+	test    %eax,%eax
+	jz      label2
+	xorl    %esi,%esi
+	leal    J(%esi),%eax
+	pushl   %eax
+	pushl   $1
+	popl    %eax
+	popl    %ebx
+	movl    %eax,(%ebx)
+label3:
+	xorl    %esi,%esi
+	leal    J(%esi),%eax
+	pushl   %eax
+	popl    %eax
+	pushl   (%eax)
+	pushl   $4
+	popl    %ebx
+	popl    %eax
+	xorl    %ecx,%ecx
+	cmpl    %ebx,%eax
+	jnle    1f
+	incl    %ecx
+1:	pushl   %ecx
+	popl    %eax
+	test    %eax,%eax
+	jz      label4
+	xorl    %esi,%esi
+	leal    I(%esi),%eax
+	pushl   %eax
+	popl    %eax
+	pushl   (%eax)
+	popl    %eax
+	call    print_dec
+	xorl    %esi,%esi
+	leal    J(%esi),%eax
+	pushl   %eax
+	popl    %eax
+	pushl   (%eax)
+	popl    %eax
+	call    print_dec
+	call    print_newline
+	xorl    %esi,%esi
+	leal    J(%esi),%eax
+	pushl   %eax
+	xorl    %esi,%esi
+	leal    J(%esi),%eax
+	pushl   %eax
+	popl    %eax
+	pushl   (%eax)
+	pushl   $1
+	popl    %ebx
+	popl    %eax
+	addl    %ebx,%eax
+	jo      overflow
+	pushl   %eax
+	popl    %eax
+	popl    %ebx
+	movl    %eax,(%ebx)
+	jmp     label3
+label4:
+	xorl    %esi,%esi
+	leal    I(%esi),%eax
+	pushl   %eax
+	xorl    %esi,%esi
+	leal    I(%esi),%eax
+	pushl   %eax
+	popl    %eax
+	pushl   (%eax)
+	pushl   $1
+	popl    %ebx
+	popl    %eax
+	addl    %ebx,%eax
+	jo      overflow
+	pushl   %eax
+	popl    %eax
+	popl    %ebx
+	movl    %eax,(%ebx)
+	jmp     label1
+label2:
+
+	xorl    %ebx,%ebx
+	movl    $1,%eax
+	int     $0x80

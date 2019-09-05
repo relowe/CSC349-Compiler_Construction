@@ -1,0 +1,5 @@
+program
+   A: integer;
+-- missing "begin"
+   A := 5;
+end;

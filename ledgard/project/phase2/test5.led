@@ -1,0 +1,5 @@
+program
+   A: integer;
+begin
+   -- missing statement
+end;

@@ -1,0 +1,169 @@
+Program:
+ I:
+  array[3..5] of array[1..77] of integer
+ DUPL, DUPL:
+  integer
+ J, K, L:
+  boolean
+ K:
+  array[1..2] of integer
+ L:
+  integer
+begin
+ Input:
+  I (9)
+  J (9)
+  K (9)
+  L (9)
+  M (9)
+  INPUT[] (9)
+   7
+  N (9)
+  O (9)
+  P[] (9)
+   3
+   + (9)
+    not (9)
+     J (9)
+    * (9)
+     7
+     4
+   / (9)
+    true
+    false
+ Output:
+  A (10)
+  B[] (10)
+   * (10)
+    2
+    + (10)
+     I (10)
+     1
+  OUTPUT[] (10)
+   GEORGE (10)
+   III (10)
+   + (10)
+    9
+    - (10)
+     ABC (10)
+     DEF (10)
+  C (10)
+ Assignment:
+  A[] (11)
+   9999
+   / (11)
+    I (11)
+    2
+ := (11)
+  + (11)
+   and (11)
+    not (11)
+     3
+    < (11)
+     2
+     3
+   <= (11)
+    or (11)
+     5
+     9
+    999
+ Assignment:
+  A (12)
+ := (12)
+  Q (12)
+ While:
+  != (13)
+   X (13)
+   UNDECLARED (13)
+ Loop:
+  Assignment:
+   B (15)
+  := (15)
+   or (15)
+    true
+    false
+ While:
+  true
+ Loop:
+  Assignment:
+   B (18)
+  := (18)
+   XYZ (18)
+ If:
+  A (19)
+ Then:
+  Assignment:
+   B (20)
+  := (20)
+   C (20)
+ Else:
+  Assignment:
+   D (21)
+  := (21)
+   E (21)
+ If:
+  A (23)
+ Then:
+  Assignment:
+   B (23)
+  := (23)
+   C (23)
+  Assignment:
+   X (23)
+  := (23)
+   Y (23)
+ Else:
+  Assignment:
+   D (23)
+  := (23)
+   E (23)
+  Assignment:
+   Y (23)
+  := (23)
+   Z (23)
+ Assignment:
+  X (24)
+ := (24)
+  < (24)
+   A (24)
+   <= (24)
+    B (24)
+    == (25)
+     C (25)
+     != (26)
+      D (26)
+      >= (27)
+       E (27)
+       > (28)
+        F (28)
+        + (29)
+         G (29)
+         - (30)
+          H (30)
+          * (31)
+           I (31)
+           / (32)
+            J (32)
+            and (33)
+             K (33)
+             or (34)
+              L (34)
+              M (34)
+ If:
+  CONDITION (45)
+ Then:
+  Assignment:
+   A (45)
+  := (45)
+   + (45)
+    A (45)
+    1
+ Exchange:
+  I[] (46)
+   4
+   33
+ :=: (46)
+  I[] (46)
+   3
+   44
+end

@@ -1,0 +1,15 @@
+program
+   A: integer;
+   B: array[1..100] of integer;
+   C: boolean;
+   D: array[3..5] of array[10..20] of boolean;
+begin
+   A := B + 3;
+   C := D[4][15];
+   while (A + 3) == 9
+   loop
+      A := A + 1;
+   end loop;
+   C := C and 5;
+   B[3] := A + (C and D);
+end;

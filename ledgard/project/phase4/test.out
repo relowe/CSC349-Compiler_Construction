@@ -1,0 +1,9 @@
+Duplicate Names:  DUPL, K, L
+Undefined Names:  A, ABC, B, C, CONDITION, D, DEF, E, F, G, GEORGE, H, III, INPUT, M, N, O, OUTPUT, P, Q, UNDECLARED, X, XYZ, Y, Z
+Symbol Table:
+-------------
+	DUPL:	integer
+	I:	array[3..5] of array[1..77] of integer
+	J:	boolean
+	K:	boolean
+	L:	boolean

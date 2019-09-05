@@ -1,0 +1,13 @@
+program
+   I, J: integer;
+begin
+   I := 1;
+   while I <= 5 loop
+      J := 1;
+      while J <= 4 loop
+         output I, J;
+         J := J + 1;
+      end loop;
+      I := I + 1;
+   end loop;
+end;

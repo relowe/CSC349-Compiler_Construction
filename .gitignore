@@ -1,3 +1,7 @@
+*
+!*.*
+!*/
+*.o
 *.aux
 *.synctex.gz
 *.log
