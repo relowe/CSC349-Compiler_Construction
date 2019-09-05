@@ -1,0 +1,550 @@
+\documentclass{article}
+\usepackage{fullpage}
+
+\begin{document}
+\begin{center}
+    {\huge Ledgard Compiler Project}
+\end{center}
+\hrulefill
+
+Once you've finished this project, you will have all the pieces of
+a Linux compiler for the Ledgard programming language. All you'll need
+to add is a ``driver'' that allows the user to specify on the command
+line the file(s) to compile and automatically invokes the assembler
+and linker to complete the compilation. The project will involve your
+making use of pretty much everything you've learned in previous CS
+courses, plus some new stuff you'll learn in this class.
+
+You will complete the project in six phases. The compressed archive
+project.tar.gz (available on the wiki) contains
+the skeleton code you'll need. Once you've downloaded this file, the
+command 
+\begin{verbatim}
+    tar xvf project.tar.gz 
+\end{verbatim}
+will create and populate the following directories (one for the
+project as a whole, with subdirectories for each phase).
+
+Each of the subdirectories contains the files necessary to compile and
+test a single phase of the project:
+\begin{itemize}
+    \item class interfaces (.h; readonly)
+    \item skeleton code for you to complete (.cpp)
+    \item driver program for basic testing (main.cpp)
+    \item input files for basic testing (.led)
+    \item correct output from running the driver on the test input
+        (.out)
+\end{itemize}
+
+Each one also contains a ``makefile,'' which simplifies the process of
+compiling the code and linking the components.  If phase$n$ is the
+correct directory, the command
+\begin{verbatim}
+    make
+\end{verbatim}
+Will compile your code and the driver, linking it with the code from
+the earlier phases to create a phase$n$-driver program that you can
+use to test your code, and the command
+\begin{verbatim}
+    make test
+\end{verbatim}
+will run the driver program using the sample input files and report on
+the results.  Note that these tests are in no way exhaustive, and you
+will certainly want to run your own tests as well, perhaps even
+modifying the makefile to do this automatically for you.
+
+Each phase also contains a ``\texttt{precompiled}'' directory, which contains
+correct, precompiled versions of all the modules (including the one
+you're working on) as well as the driver program, so that you can
+compare the results of your code with that of (presumably) correct
+code.  The precompiled modules from earlier phases are used in
+building each phase, so if you're having trouble with one phase, you
+can work on the next one before you've completed it (and come back to
+the difficult one later).  The only exception to this rule is phase 3.
+you need to complete phase 2 successfully before you can work on phase
+3.
+
+For each phase, you will submit your appropriate .cpp file to your
+instruction as an {\em attachment} to an email message.  Your
+instructor will test your program thoroughly as soon as he can, and
+return the results to you via email (along with some hints about why
+you failed one or more of the tests.)  You may resubmit corrected
+versions of each as often as you like, until you pass all your
+instructor's tests, or until the last day of classes, whichever comes
+first.
+
+You may make any changes you like to the completion/submission file
+(except when a comment in the file explicitly for bits such a change),
+but your changes must still be compatible with the class header files
+(which are read-only and cannot be changed).  If you make incompatible
+changes, your code will not compile or link correctly when your
+instructor tries to test it.
+
+\section{Phase 0: Ledgard Programming}
+File to complete and submit: \texttt{phase0.led}
+
+To get you started working with the Ledgard language, you need to
+write a program in that language. You must submit a file named
+\texttt{phase0.led} containing a Ledgard program that sorts its input.
+Your program must first read an integer value that specifies how many
+values are to follow (but no more than 100), and then read that many
+values into an integer array. It must then sort the values in the
+array into ascending order, and print out the values in order, one
+value per output line.
+
+You may use any sort algorithm you wish, although recursive algorithms
+like quick-sort will be tricky; you'll have to do your own stack
+management.
+
+
+\section{Phase 1: Lexical Analyzer}
+File to complete and submit: \texttt{lexer.cpp}
+
+For this phase you will complete the implementation of the
+\texttt{Lexer} class. A Lexer is an object that turns the strings in
+a given input stream into tokens, and operates like a queue (the Token
+type is defined in the \texttt{lexer.h} header file along with the
+Lexer class)
+
+The \texttt{pop} and \texttt{empty} member functions have already been
+implemented. Your job is to implement the class constructor and the
+\texttt{curr} member function, which returns the current token in the stream
+(\texttt{ENDFILE} if there are no more tokens left). The easiest way to do this
+is to read and tokenize the entire stream, putting each token into the
+data queue and have curr simply return \texttt{data.front()} (and this is
+probably what you'll want to do for your first draft).  A better (and
+slightly more difficult) implementation would be to do nothing in the
+constructor, but to read and tokenize (perhaps one line at a time)
+only if the data queue is empty when curr is called.
+
+\section{Phase 2: Parser}
+File to complete and submit: \texttt{parser.cpp}
+
+This phase implements the \texttt{Parser} class (the parse member
+function in particular), which parses a Ledgard program using the
+technique of recursive descent. Each production in the grammar should
+have a corresponding function which returns \texttt{true} or
+\texttt{false}, depending on whether or not the parse is successful
+(some productions, of course, may be combined into a single function,
+for efficiency). The \texttt{parse\_program} function, which calls
+\texttt{parse\_decl} and \texttt{parse\_stmt} is already implemented.
+The rest is up to you.  
+
+The \texttt{mustbe} function is the only one that reports errors. Use
+this function; do not attempt your own error reporting. The present
+version exits the program when the first error occurs. We will discuss
+in class various ways a parser can recover from errors, but for the
+purposes of this project, leave things as they are.
+
+
+\section{Phase 3: Generating a Parse Tree}
+File to complete and submit: \texttt{parser.cpp}
+
+This is the only phase of the project that requires that the previous
+phase be completed before work can be done on it. This is also the
+only phase which requires the use of pointers, so you need to be
+careful to avoid memory leaks. Your job is to modify the functions you
+wrote for Phase 2 so that instead of returning a boolean value, they
+return a pointer to an appropriate \texttt{Parse\_Tree} node. These
+node types are defined in \texttt{parse-tree.h}, and rely on
+inheritance, polymorphism, and recursion to do their jobs properly.
+Close study of this file will more than repay the effort.
+
+Many of the member functions declared in \texttt{parse-tree.h} will
+not be implemented until later phases. Dummy versions of these
+functions are defined in the \texttt{unimplemented.cpp} file. Each
+succeeding phase will implement some of these functions, and leave
+some unimplemented. The last phase, of course, completes the
+implementation, and this file then disappears from the project.
+
+\section{Phase 4: Symbol Table}
+File to complete and submit: \texttt{symtab.cpp}
+
+Usually, the symbol table work is done during the parsing phase, but
+in the interest of clarity, we keep it separate here. Our symbol table
+is a \texttt{struct} containing three parts: a \texttt{map} of names
+to types, a \texttt{set} of names that are used but never defined, and
+a set of names that have been defined more than once.
+
+Note that the symbol table variable, \texttt{symtab}, is defined as
+a {\em global} variable. This is one of the very few situations in
+which a global variable is proper programming practice. See if you can
+understand why.
+
+You will implement the member functions \texttt{build\_symtab} (for
+declarations) and \texttt{check\_symbols} (for everything else). The
+\texttt{build\_symtab} function adds every identifier in a declaration
+(and its type) to the symbol table, adding identifiers to the
+multiply-defined set whenever an attempt is made to define an
+identifier that has already been defined. The \texttt{check\_symbols}
+function adds any identifier not defined in the symbol table to the
+undefined set.
+
+\section{Phase 5: Type Checking}
+File to complete and submit: \texttt{typecheck.cpp}
+
+Type checking, too, is usually done during parsing, as the symbol
+table is built, but again, we do it in a separate phase. This is
+probably the most difficult of the phases to get right, as we want to
+catch every type error we can, but not to report any error more than
+once. The \texttt{get\_type} and \texttt{match\_types} member
+functions are the ones you'll need to implement. Only the match types
+functions report any errors, and must use the
+\texttt{report\_type\_error} function (defined in \texttt{typecheck.h}).
+Source lines with multiple type errors should only be reported once.
+
+The implementation of the \texttt{get\_type} functions is mostly
+straightforward, except for variables.  To determine the type of
+a subscripted variable, it is necessary to find the base type of the
+variable.  To do this, you will need to use the \texttt{dynamic\_cast}
+operation. If the variable \texttt{t} is a pointer to
+a \texttt{Type\_Node}, the construction
+\begin{verbatim}
+    Array_Node* a = dynamic_cast<Array_Node*>(t);
+\end{verbatim}
+will determine if \texttt{t} actually points to an
+\texttt{Array\_Node}. If it does, the assignment succeeds, and
+\texttt{a->get\_base\_type()} gives you the array's base type. If not,
+\texttt{nullptr} will be assigned to a. If a variable that is not
+actually an array is subscripted, \texttt{get\_type} should return
+\texttt{Type\_Node::VOID} to indicate that there is no such variable.
+
+The implementation of the \texttt{match\_types} functions is somewhat
+trickier, as the types of all subexpressions have to be checked for
+type compatibility as well. These functions must use calls to
+\texttt{get\_type} to enforce the Ledgard type matching rules. A few
+extra \texttt{match\_types} member functions are already implemented
+in order to give you a better idea of what's involved. Again,
+variables with subscripts are likely to cause the most problems.  
+
+\section{Phase 6: Code Generation}
+File to complete and submit: \texttt{codegen.cpp}
+
+Code generation is pretty much a case of determining the proper code
+pattern for each construct and generating code that matches that
+pattern. The code patterns for each of the Ledgard constructs are
+given below. If you put your generated code into a file with
+a \texttt{.s} extension (\texttt{program.s} for example, you can use
+the Linux assembler to create an object file (\texttt{program.o}),
+\begin{verbatim}
+    as32 -o program.o program.s
+\end{verbatim}
+the loader to link it with the Ledgard library routines and create an
+executable (program), 
+\begin{verbatim}
+    ld32 -o program program.o precompiled/ledgard-lib.o
+\end{verbatim}
+which you can then execute directly
+\begin{verbatim}
+    ./program
+\end{verbatim}
+
+The precompiled directory for this phase contains the \texttt{.s}
+files that should be generated for each of the test programs, as well
+as executable versions.
+
+\subsection*{Code to generate for a program}
+\begin{verbatim}
+.section .bss
+<code for declaration>
+.section .text
+.globl _start
+_start:
+<code for statements>
+        xorl    %ebx,%ebx
+        movl    $1,%eax
+        int     $0x80
+\end{verbatim}
+
+\subsection*{Code to generate for a declaration}
+For each identifier declared, generate the following:
+\begin{verbatim}
+        .lcomm  <identifier>, <size of type>
+\end{verbatim}
+
+\subsection*{Code to generate for an assignment statement}
+\begin{verbatim}
+<code for the variable's address>
+<code for the expression>
+        popl    %eax
+        popl    %ebx
+        movl    %eax,(%ebx)
+\end{verbatim}
+
+\subsection*{Code to generate for an exchange statement}
+\begin{verbatim}
+<code for the left variable's address>
+<code for the right variable's address>
+        popl    %ebx
+        popl    %ecx
+        movl    (%ebx),%eax
+        movl    (%ecx),%edx
+        movl    %eax,(%ecx)
+        movl    %edx,(%ebx)
+\end{verbatim}
+
+\subsection*{Code to generate for an `\texttt{if}' statement}
+\begin{verbatim}
+<code for the condition>
+        popl    %eax
+        test    %eax,%eax
+        jz      label1
+<code for then-part statements>
+        jmp     label2
+label1 :
+<code for else-part statements>
+label2 :
+\end{verbatim}
+
+\subsection*{Code to generate or a `\texttt{while}' statement}
+\begin{verbatim}
+label1 :
+<code for the condition>
+        popl    %eax
+        test    %eax,%eax
+        jz      label2
+<code for the body statements>
+        jmp     label1
+label2 :
+\end{verbatim}
+
+\subsection*{Code to generate for an `\texttt{input}' statement}
+For each variable listed, generate the following:
+\begin{verbatim}
+<code for the variable's address>
+        call    <read dec if variable is integer, read bool otherwise>
+        popl    %ebx
+        movl    %eax,(%ebx)
+\end{verbatim}
+
+\subsection*{Code to generate for an `\texttt{output}' statement}
+For each variable listed, generate the following:
+\begin{verbatim}
+<code for the variable's value>
+        popl    %eax
+        call    <print dec if variable is integer, print bool otherwise>
+\end{verbatim}
+and then generate
+\begin{verbatim}
+        call    print_newline
+\end{verbatim}
+
+
+\subsection*{Code to generate for a `\texttt{<}' operation}
+\begin{verbatim}
+<code for left operand>
+<code for right operand>
+        popl    %ebx
+        popl    %eax
+        xorl    %ecx,%ecx
+        cmpl    %ebx,%eax
+        jnl     1f
+        incl    %ecx
+1:      pushl   %ecx
+\end{verbatim}
+
+
+\subsection*{Code to generate for a `\texttt{<=}' operation}
+\begin{verbatim}
+<code for left operand>
+<code for right operand>
+        popl    %ebx
+        popl    %eax
+        xorl    %ecx,%ecx
+        cmpl    %ebx,%eax
+        jnle    1f
+        incl    %ecx
+1:      pushl   %ecx
+\end{verbatim}
+
+\subsection*{Code to generate for a `\texttt{==}' operation}
+\begin{verbatim}
+<code for left operand>
+<code for right operand>
+        popl    %ebx
+        popl    %eax
+        xorl    %ecx,%ecx
+        cmpl    %ebx,%eax
+        jne     1f
+        incl    %ecx
+1:      pushl   %ecx
+\end{verbatim}
+
+\subsection*{Code to generate for a `\texttt{<>}' operation}
+\begin{verbatim}
+<code for left operand>
+<code for right operand>
+        popl    %ebx
+        popl    %eax
+        xorl    %ecx,%ecx
+        cmpl    %ebx,%eax
+        je      1f
+        incl    %ecx
+1:      pushl   %ecx
+\end{verbatim}
+
+\subsection*{Code to generate for a `\texttt{>=}' operation}
+\begin{verbatim}
+<code for left operand>
+<code for right operand>
+        popl    %ebx
+        popl    %eax
+        xorl    %ecx,%ecx
+        cmpl    %ebx,%eax
+        jnge    1f
+        incl    %ecx
+1:      pushl   %ecx
+\end{verbatim}
+
+\subsection*{Code to generate for a `\texttt{>}' operation}
+\begin{verbatim}
+<code for left operand>
+<code for right operand>
+        popl    %ebx
+        popl    %eax
+        xorl    %ecx,%ecx
+        cmpl    %ebx,%eax
+        jng     1f
+        incl    %ecx
+1:      pushl   %ecx
+\end{verbatim}
+
+\subsection*{Code to generate for a `\texttt{+}' operation}
+\begin{verbatim}
+<code for left operand>
+<code for right operand>
+        popl    %ebx
+        popl    %eax
+        addl    %ebx,%eax
+        jo      overflow
+        pushl   %eax
+\end{verbatim}
+
+\subsection*{Code to generate for a `\texttt{-}' operation}
+\begin{verbatim}
+<code for left operand>
+<code for right operand>
+        popl    %ebx
+        popl    %eax
+        subl    %ebx,%eax
+        jo      overflow
+        pushl   %eax
+\end{verbatim}
+
+\subsection*{Code to generate for a `texttt{*}' operation}
+\begin{verbatim}
+<code for left operand>
+<code for right operand>
+        popl    %ebx
+        popl    %eax
+        imull   %ebx,%eax
+        jo      overflow
+        pushl   %eax
+\end{verbatim}
+
+\subsection*{Code to generate for a `/' operation}
+\begin{verbatim}
+<code for left operand>
+<code for right operand>
+        popl    %ebx
+        test    %ebx,%ebx
+        jz      divide0
+        popl    %eax
+        cltd
+        idivl   %ebx
+        pushl   %eax
+\end{verbatim}
+
+\subsection*{Code to generate for an `\texttt{and}' operation}
+\begin{verbatim}
+<code for left operand>
+        movl    (%esp),%eax
+        testl   %eax,%eax
+        jz      label1
+        popl    %eax
+<code for right operand>
+label1 :
+\end{verbatim}
+
+\subsection*{Code to generate for an `\texttt{or}' operation}
+\begin{verbatim}
+<code for left operand>
+        movl    (%esp),%eax
+        testl   %eax,%eax
+        jnz     label1
+        popl    %eax
+<code for right operand>
+label1 :
+\end{verbatim}
+
+\subsection*{Code to generate for a `\texttt{not}' operation}
+\begin{verbatim}
+<code for operand>
+        popl    %eax
+        xorl    $01,%eax
+        pushl   %eax
+\end{verbatim}
+
+\subsection*{Code to generate for an integer literal}
+\begin{verbatim}
+        pushl   $<the literal's value>
+\end{verbatim}
+
+\subsection*{Code to generate or a boolean literal}
+\begin{verbatim}
+        pushl   $<the literal's value,  0 for false, 1 for true>
+\end{verbatim}
+
+\subsection*{Code to generate for a variable's value}
+\begin{verbatim}
+<code for the variable's address>
+        popl    %eax
+        pushl   (%eax)
+\end{verbatim}
+
+
+\subsection*{Code to generate for a variable's address}
+First generate the single instruction
+\begin{verbatim}
+        xorl    %esi,%esi
+\end{verbatim}
+Then, for each subscript expression and its corresponding base type,
+\begin{verbatim}
+        pushl   %esi
+    <code for subscript expression>
+        popl    %eax
+        popl    %esi
+        cmpl    $<corresponding index's upper bound>,%eax
+        ja      out_of_range
+        subl    $<corresponding index's lower bound>,%eax
+        jb      out_of_range
+        imull   $<size of current base type>,%eax
+        addl %eax,%esi
+\end{verbatim}
+and, finally,
+\begin{verbatim}
+        leal    <the variable's identifier >(%esi),%eax
+        pushl   %eax
+\end{verbatim}
+
+\section{Optimization (optional)}
+You may notice that the code generated according to this scheme is not
+very efficient. In particular, it generates quite a lot of redundant
+pushes and pops. If you're feeling adventurous, you might want to try
+generating more optimal code. Removing the redundant pushes and pops,
+for example, reduces the number of generated assembly language lines
+by about 20\%.  
+
+Your ``optimized'' code must, of course, produce the same
+results as would the original, ``unoptimized'' code.
+
+
+\section{Extra Credit}
+If you add more to your compiler, I will give you extra credit.  For
+instance, writing a code optimizer will increase your score.  So would
+adding other features to the Ledgard language.  The harder your chosen
+task, the greater the points.
+
+Enjoy!
+
+\end{document}
