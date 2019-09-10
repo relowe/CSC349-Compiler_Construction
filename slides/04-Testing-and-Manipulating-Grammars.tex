@@ -1,0 +1,217 @@
+\documentclass[]{beamer}
+\mode<presentation>
+{
+  \usetheme{Warsaw}
+  \definecolor{mcgarnet}{rgb}{0.38, 0, 0.08}
+  \definecolor{mcgray}{rgb}{0.6, 0.6, 0.6}
+  \setbeamercolor{structure}{fg=mcgarnet,bg=mcgray}
+  %\setbeamercovered{transparent}
+}
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{tikz}
+\usepackage{graphicx}
+
+\newcommand{\imagesource}[1]{{\centering\hfill\break\hbox{\scriptsize Image Source:\thinspace{\small\itshape #1}}\par}}
+
+\title{04 - Testing and Manipulating Grammars}
+
+
+\author{Dr. Robert Lowe\\}
+
+\institute[Maryville College] % (optional, but mostly needed)
+{
+  Division of Mathematics and Computer Science\\
+  Maryville College
+}
+
+\date[]{}
+\subject{}
+
+\pgfdeclareimage[height=0.5cm]{university-logo}{images/Maryville-College}
+\logo{\pgfuseimage{university-logo}}
+
+
+
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>{Outline}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Outline}
+  \tableofcontents
+\end{frame}
+
+
+% Structuring a talk is a difficult task and the following structure
+% may not be suitable. Here are some rules that apply for this
+% solution: 
+
+% - Exactly two or three sections (other than the summary).
+% - At *most* three subsections per section.
+% - Talk about 30s to 2min per frame. So there should be between about
+%   15 and 30 frames, all told.
+
+% - A conference audience is likely to know very little of what you
+%   are going to talk about. So *simplify*!
+% - In a 20min talk, getting the main ideas across is hard
+%   enough. Leave out details, even if it means being less precise than
+%   you think necessary.
+% - If you omit details that are vital to the proof/implementation,
+%   just say so once. Everybody will be happy with that.
+
+\section{Grammars and Recursion}
+
+\begin{frame}{Sample Grammar $G$}
+    For this discussion, we will be using the following grammar (found on page 39 of your textbook):
+
+    \[
+      \begin{array}{l}
+        S \rightarrow E\\
+        E \rightarrow T\ |\ E + T\\
+        T \rightarrow F\ |\ T * F\\
+        F \rightarrow U\ |\ (E)\\
+        U \rightarrow 0\ |\ 1\ |\ 2\ |\ 3\ |\ 4\ |\ 5\ |\ 6\ |\ 7\ |\ 8\ |\ 9\\
+      \end{array}
+    \]
+\end{frame}
+
+\begin{frame}{General Top Down Parsing}
+  \begin{enumerate}[<+->]
+    \item Look at the next symbol of input.  This is the \textbf{target} symbol.
+    \item Expand the next non-terminal in the sentence.
+    \item If the target symbol does not match, bactrack and select a different non-terminal.
+    \item Keep repeating the process until there are either no non-terminal candidates or until there are no non-terminals left in the sentence.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{The Backtracking Problem}
+  \begin{itemize}[<+->]
+      \item Even with the best of luck, a backtracking parser would be exponential in runtime!
+      \item A left-recursive grammar could lead to an infinite number of candidates.
+      \item Recall that the sample grammar in the textbook has the rule $E \rightarrow E+T$
+      \item Consider the following expansion for the grammar from the textbook:
+      \[
+        \begin{array}{lr}
+            \uncover<+->{E+T & 1+2*3\\}
+            \uncover<+->{E+T+T & 1+2*3\\}
+            \uncover<+->{E+T+T+T & 1+2*3\\}
+            \uncover<+->{E+T+T+T+T & 1+2*3\\}
+            \uncover<+->{\ldots} & \\
+        \end{array}
+      \]
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Ordering Recursion}
+  \begin{itemize}[<+->]
+    \item Left recursion causes problems in candidate expansions.
+    \item Perhaps we could organize a grammar to mitigate the expansion problem.
+    \item If we move left recusrive choices to the end, maybe this would fix it!
+    \item What if we took the grammar $G$ and imposed the order $\langle T, F, U\rangle$ on expansions?
+  \end{itemize}
+  \[
+    \begin{array}{lr}
+      \uncover<+->{T & 1+2*3\\}
+      \uncover<+->{F & 1+2*3\\}
+      \uncover<+->{U & 1+2*3\\}
+      \uncover<+->{1 & 1+2*3\\}
+      \uncover<+->{\lambda & +2*3\\}
+      \uncover<+->{\textrm{Mismatch!  Backtrack!} & \\}
+    \end{array}
+  \]
+\end{frame}
+
+\begin{frame}{Ordering Recursion (Continued)}
+  \[
+    \begin{array}{lr}
+      \uncover<+->{T*F & 1+2*3\\}
+      \uncover<+->{F*F & 1+2*3\\}
+      \uncover<+->{U*F & 1+2*3\\}
+      \uncover<+->{1*F & 1+2*3\\}
+      \uncover<+->{\textrm{Mismatch!  Backtrack!} & \\}
+      \uncover<+->{T*F*F & 1+2*3\\}
+      \uncover<+->{\ldots & \\}
+      \uncover<+->{\textrm{And there's the loop again...} & \\}
+    \end{array}
+  \]
+\end{frame}
+
+
+\section{LL(1) Grammars}
+
+\begin{frame}{Deterministic Parsing}
+    \begin{itemize}[<+->]
+      \item Backtracking is parsing by ``brute force''.
+      \item Backtracking essentially explores every possible production, searching for a match.
+      \item Generally, we want parse times to be proportional to the size of the input, not exponential.
+      \item Undoing parsing is difficult!
+      \item We need some way to determine what production we must have based on the symbols being examined.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{$\mathrm{LL}(k)$ Grammars}
+  \begin{itemize}[<+->]
+    \item Instead of guessing and checking, we maintain a buffer of terminals.
+    \item If a grammar is decidable using $k$ terminals, we call this a $k$-lookahead grammar.
+    \item We can further classify the grammar by its scanning order and which production it expands first.
+    \item An $\mathrm{LL}(k)$ grammar is a grammar that is scanned from left to right and expands the left most derivaion.
+    \item $\mathrm{RL}(k)$ scans input from right to left, exapanding left-most derivations.
+    \item $\mathrm{LR}(k)$ scans from left to right, expanding left-most derivations.
+    \item All of the above have a look-ahead buffer of $k$ terminals.
+    \item We are really interested in $\mathrm{LL}(1)$ grammars.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Defining $\mathrm{LL}(1)$ Grammars}
+  \begin{itemize}[<+->]
+      \item Suppose we have a target expansion $A \rightarrow \alpha_1 | \alpha_2 | \ldots | \alpha_n$
+      \item We must be able to select $\alpha_i$ by looking at the next symbol.
+      \item For each production, we must have a disjoin \textbf{director set} $D(A\rightarrow \alpha_i)$.
+      \item For lookup buffer $s$, $A \rightarrow \alpha_i$ iff $s \in D(A \rightarrow \alpha_i)$.
+      \item We can also have a set of symbols which immediately identify as an error if they are encountered.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Calculating Director Sets}
+  \begin{itemize}[<+->]
+      \item If $\alpha_i \stackrel{*}{\Rightarrow} t \gamma$ for some terminal $t$
+      \item Then $t \in D(A \rightarrow \alpha_i)$
+      \item Because $A \stackrel{+}{\Rightarrow} t \gamma$ is a valid derivation.
+      \item Let $<<$ be an operator over $(N \cup T)$ such that $\beta << \alpha \iff \exists \alpha \rightarrow \beta$
+      \item The reflexive transitive closure $<<^*$ is therefore the ``Can Start'' relation
+      \item The \textbf{start set} is $\mathrm{START}(\alpha) = \beta : \beta <<^* \alpha$ 
+      \item Considering $\alpha_i = \beta_1\beta_2\ldots\beta_r$ then $t \in \mathrm{START}(\beta_i) \implies t \in D(A \rightarrow \alpha_i)$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Start Sets of $G$}
+  \[
+    \begin{array}{l}
+      \uncover<+->{\mathrm{START}(U) = \{U,0,1,2,3,4,5,6,7,8,9\}}\\
+      \uncover<+->{\mathrm{START}(F) = \{\{F,(\} \cup \mathrm{START}(U)\}}\\
+      \uncover<+->{\mathrm{START}(T) = \{\{T\} \cup \mathrm{START}(F)\}}\\
+      \uncover<+->{\mathrm{START}(E) = \{\{E\} \cup \mathrm{START}(T)\}}\\
+      \uncover<+->{\mathrm{START}(S) = \{\{S\} \cup \mathrm{START}(E)\}}\\
+    \end{array}
+  \]
+  \begin{itemize}[<+->]
+    \item Is $G$ an $\mathrm{LL(1)}$ grammar?
+    \item NO!  In fact, no grammar containing left-recursive rules is $\mathrm{LL}(1)$!
+    \item $D(A \rightarrow A \gamma) \subseteq \mathrm{START}(A)$
+  \end{itemize}
+\end{frame}
+
+\end{document}
