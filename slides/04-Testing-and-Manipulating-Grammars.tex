@@ -92,7 +92,7 @@
   \begin{enumerate}[<+->]
     \item Look at the next symbol of input.  This is the \textbf{target} symbol.
     \item Expand the next non-terminal in the sentence.
-    \item If the target symbol does not match, bactrack and select a different non-terminal.
+    \item If the target symbol does not match, backtrack and select a different non-terminal.
     \item Keep repeating the process until there are either no non-terminal candidates or until there are no non-terminals left in the sentence.
   \end{enumerate}
 \end{frame}
@@ -119,7 +119,7 @@
   \begin{itemize}[<+->]
     \item Left recursion causes problems in candidate expansions.
     \item Perhaps we could organize a grammar to mitigate the expansion problem.
-    \item If we move left recusrive choices to the end, maybe this would fix it!
+    \item If we move left recursive choices to the end, maybe this would fix it!
     \item What if we took the grammar $G$ and imposed the order $\langle T, F, U\rangle$ on expansions?
   \end{itemize}
   \[
@@ -167,8 +167,8 @@
     \item Instead of guessing and checking, we maintain a buffer of terminals.
     \item If a grammar is decidable using $k$ terminals, we call this a $k$-lookahead grammar.
     \item We can further classify the grammar by its scanning order and which production it expands first.
-    \item An $\mathrm{LL}(k)$ grammar is a grammar that is scanned from left to right and expands the left most derivaion.
-    \item $\mathrm{RL}(k)$ scans input from right to left, exapanding left-most derivations.
+    \item An $\mathrm{LL}(k)$ grammar is a grammar that is scanned from left to right and expands the left most derivation.
+    \item $\mathrm{RL}(k)$ scans input from right to left, expanding left-most derivations.
     \item $\mathrm{LR}(k)$ scans from left to right, expanding left-most derivations.
     \item All of the above have a look-ahead buffer of $k$ terminals.
     \item We are really interested in $\mathrm{LL}(1)$ grammars.
