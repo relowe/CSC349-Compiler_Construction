@@ -1,0 +1,246 @@
+\documentclass[]{beamer}
+\mode<presentation>
+{
+  \usetheme{Warsaw}
+  \definecolor{mcgarnet}{rgb}{0.38, 0, 0.08}
+  \definecolor{mcgray}{rgb}{0.6, 0.6, 0.6}
+  \setbeamercolor{structure}{fg=mcgarnet,bg=mcgray}
+  %\setbeamercovered{transparent}
+}
+
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{tikz}
+\usepackage{graphicx}
+
+\newcommand{\imagesource}[1]{{\centering\hfill\break\hbox{\scriptsize Image Source:\thinspace{\small\itshape #1}}\par}}
+
+\title{05 - Compiler Construction}
+
+
+\author{Dr. Robert Lowe\\}
+
+\institute[Maryville College] % (optional, but mostly needed)
+{
+  Division of Mathematics and Computer Science\\
+  Maryville College
+}
+
+\date[]{}
+\subject{}
+
+\pgfdeclareimage[height=0.5cm]{university-logo}{images/Maryville-College}
+\logo{\pgfuseimage{university-logo}}
+
+
+
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>{Outline}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Outline}
+  \tableofcontents
+\end{frame}
+
+
+% Structuring a talk is a difficult task and the following structure
+% may not be suitable. Here are some rules that apply for this
+% solution: 
+
+% - Exactly two or three sections (other than the summary).
+% - At *most* three subsections per section.
+% - Talk about 30s to 2min per frame. So there should be between about
+%   15 and 30 frames, all told.
+
+% - A conference audience is likely to know very little of what you
+%   are going to talk about. So *simplify*!
+% - In a 20min talk, getting the main ideas across is hard
+%   enough. Leave out details, even if it means being less precise than
+%   you think necessary.
+% - If you omit details that are vital to the proof/implementation,
+%   just say so once. Everybody will be happy with that.
+
+\section{Compiler Construction}
+
+\begin{frame}{Compiler Phases and Passes}
+    \begin{itemize}[<+->]
+        \item Three Main Phases:
+        \begin{enumerate}
+            \item Lexical Analysis
+            \item Syntax Analysis
+            \item Code Generation
+        \end{enumerate}
+        \item The phases may require more than one pass.
+        \item A recursive descent compiler typically requires only one
+            pass.
+    \end{itemize} 
+\end{frame}
+
+\begin{frame}{Recursive Descent Compiler Design}
+    \begin{itemize}[<+->]
+        \item Each non-terminal has a corresponding function.
+        \item Function calls are mutually recursive.  
+        \item That is, functions call each other as they parse the
+            program.
+        \item For example: \texttt{\textbf{while} <clause> \textbf{do} <clause>}
+        \begin{enumerate}
+            \item The parser sees the keyword \texttt{while}, and so
+                it invokes the \texttt{while()} function.
+            \item \texttt{while} then calls the \texttt{clause()} function.
+            \item Once \texttt{clause()} returns, \texttt{while}
+                checks to see if there is a \texttt{do} keyword.
+            \item \texttt{while} then calls the \texttt{clause()}
+                function once more.
+        \end{enumerate}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Non-Terminal Production Function Design}
+    \begin{itemize}[<+->]
+        \item The function checks the next lexical symbol. 
+        \item Based on the symbol, it then either consumes the symbol
+            or it selects a non-terminal production.
+        \item Should an unexpected symbol arise, the function should
+            report an error.
+        \item Let's try designing the functions for the $G$ grammar! (The
+        $\mathrm{LL}(1)$ variant):
+        \[
+        \begin{array}{l}
+            S \rightarrow E \\
+            E \rightarrow TE'\\
+            E' \rightarrow \lambda | + T E' \\
+            T \rightarrow FT'\\
+            T' \rightarrow \lambda | *FT'\\
+            F \rightarrow (E) | U\\
+            U \rightarrow 0|1|2|3|4|5|6|7|8|9\\
+        \end{array}
+        \]
+        \item Let's step through some valid and invalid sentences.
+    \end{itemize}
+\end{frame}
+
+\section{Compiler Layers}
+\begin{frame}{Stepwise Refinement}
+    \begin{itemize}[<+->]
+        \item The compiler process is as follows:
+        \begin{enumerate}
+            \item Read in the Source
+            \item Check the Syntax
+            \item Generate the Code
+        \end{enumerate}
+        \item Each phase of compiler design and construction refines
+          these steps, adding more detail as we go.
+        \item The easiest approach is to treat view the compiler as
+          an ogre (it has layers).
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Writing a Recursive Descent Compiler}
+    \begin{enumerate}[<+->]
+        \item Write a pure syntax analyzer.
+        \item Write a lexical analyzer.
+        \item Add the context free error diagnosis and recovery.
+        \item Add the type checking and type handler.
+        \item Add the environment handler and scope checker.
+        \item Add the context sensitive error reporting.
+        \item Add the data and code address calculation.
+        \item Write the code generation.
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Syntax Analysis}
+    \begin{itemize}[<+->]
+        \item The syntax analyzer is responsible for turning the input
+            into a string of basic symbols.
+        \item This part of the compiler must be aware of terminals,
+            and \textbf{keywords}. 
+        \item A keyword is a fixed terminal string, such as
+            \texttt{while}, \texttt{if}, etc.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Lexical Analysis}
+    \begin{itemize}[<+->]
+        \item The lexical analyzer classifies groups of symbols into
+            basic constructs.
+        \item This is the phase that identifies literals and keywords.
+        \item The lexical analyzer reduces the sentence to a series of
+            symbols over the $N\cup T$ alphabet.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Context Free Error Diagnosis and Recovery}
+    \begin{itemize}[<+->]
+        \item This phase basically consists of checking for
+            unexpected symbols.
+        \item This is a fairly trivial exercise if we have an
+            $\mathrm{LL}(1)$ language (or one close to it).
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Type Checking}
+    \begin{itemize}[<+->]
+        \item Type checking validates types used in program
+            expressions.
+        \item Incompatible types generate errors.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Environment and Scope Checking}
+    \begin{itemize}[<+->]
+        \item This is symbol table checking.
+        \item Verify that all variables are defined in the scope in
+            which they are used.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Context Sensitive Error Reporting}
+    \begin{itemize}[<+->]
+        \item These are errors caused by programs which parse, but are
+            meaningless.
+        \item Other examples include duplicate names, and other such
+            non-syntax related errors.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Machine Abstraction and Code Generation}
+    \begin{itemize}[<+->]
+        \item An abstract machine is used to compute addresses of
+            variables and the like.
+        \item This where concepts such as ``stack'' and ``heap'' come
+            into play.
+        \item Eventually, the abstract machine definition of the code
+            is mapped to the real machine during code generation.
+        \item These final two layers are the only one with any
+            awareness of the underlying computer.  Hence they are
+            typically well separated to ensure language portability.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Conclusion}
+    \begin{itemize}[<+->]
+        \item The process of writing a compiler is about stepwise
+            refinement.
+        \item The layers are inter-related, however we typically can
+            write them through an iterative process.
+        \item In the coming weeks, we will study how we make each
+            layer work, adding details as we go.
+    \end{itemize}
+\end{frame}
+
+\end{document}
+
+

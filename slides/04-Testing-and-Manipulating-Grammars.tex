@@ -193,7 +193,7 @@
       \item Let $<<$ be an operator over $(N \cup T)$ such that $\beta << \alpha \iff \exists \alpha \rightarrow \beta$
       \item The reflexive transitive closure $<<^*$ is therefore the ``Can Start'' relation
       \item The \textbf{start set} is $\mathrm{START}(\alpha) = \beta : \beta <<^* \alpha$ 
-      \item Considering $\alpha_i = \beta_1\beta_2\ldots\beta_r$ then $t \in \mathrm{START}(\beta_i) \implies t \in D(A \rightarrow \alpha_i)$
+      \item Considering $\alpha_i = \beta_1\beta_2\ldots\beta_r$ then $t \in \mathrm{START}(\beta_1) \implies t \in D(A \rightarrow \alpha_i)$
   \end{itemize}
 \end{frame}
 
@@ -213,5 +213,56 @@
     \item $D(A \rightarrow A \gamma) \subseteq \mathrm{START}(A)$
   \end{itemize}
 \end{frame}
+
+\begin{frame}{The First Function}
+  \begin{itemize}[<+->] 
+    \item Are the start set symbols the only ones in $D(A \rightarrow \alpha_i)$?
+    \item Extend the function $\mathrm{START}$ to $\mathrm{FIRST}$ which 
+      operates on whole strings $\beta_1\beta_2\ldots\beta_r$ over $(N \cup T)^*$
+      and finds terminals which can start the string.
+    \item This function is defined recursively (where $\gamma \in (N\cup T)$ and $\delta \in (N\cup T)^*$):
+      \[
+        \begin{array}{lr}
+          \uncover<+->{\mathrm{FIRST}(\lambda) = \emptyset & \\}
+          \uncover<+->{\mathrm{FIRST}(\gamma\delta)=\textrm{terminals of}\ \mathrm{START}(\gamma) \cup \mathrm{FIRST}(\delta) & \mathrm{if}\ \gamma\stackrel{*}{\Rightarrow} \lambda \\}
+          \uncover<+->{\mathrm{FIRST}(\gamma\delta)=\textrm{terminals of}\ \mathrm{START}(\gamma) & \mathrm{o.w.}}
+        \end{array}
+      \]
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{The EMPTY Property}
+  \begin{itemize}[<+->]
+    \item We need to find if $\gamma \stackrel{*}{\Rightarrow}$ exists.
+    \item If ti does we say $\mathrm{EMPTY}(\gamma)$ is true.
+    \item the $\mathrm{EMPTY}$ property can be defined as follows:
+    \begin{enumerate}
+        \item If $\gamma \in T$ then $\mathrm{EMPTY}(\gamma) = \mathrm{false}$
+        \item If $\gamma \in N$ then 
+        \begin{enumerate}
+            \item If $\exists \gamma \rightarrow \lambda$ then $\mathrm{EMPTY}(\gamma)=\mathrm{true}$
+            \item If $\exists \gamma \rightarrow \delta_1\ldots \delta_k$ where $\forall 1 \leq i \leq k$ $\mathrm{EMPTY}(\delta_i)=\mathrm{true}$ then $\mathrm{EMPTY}(\gamma)=\mathrm{true}$
+            \item For all other $\gamma$, $\mathrm{EMPTY}(\gamma)=\mathrm{false}$
+        \end{enumerate}
+    \end{enumerate}
+    \item Let's calculate the $\mathrm{FIRST}$ for the productions in $G$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{The FOLLOW Function}
+  \begin{itemize}[<+->]
+    \item Suppose we have a terminal $t$ in our look-ahead buffer.
+    \item When $\alpha_i \stackrel{*}{\Rightarrow}$, A production $A$ is the correct choice for the parser if $t$ can follow $A$.
+    \item We calculate $\mathrm{FOLLOW}$ like this:
+    \begin{enumerate}
+      \item First, caclulate $\mathrm{FINISH}$ (the set of all terminals that can end the prouction)
+      \item Next, we add the $\mathrm{START(\beta_i)}$ for all $\beta_i$ that can follow $A$
+    \end{enumerate}
+    \item Let's do this for $G$!
+    \item What are the complete director sets for $G$?
+  \end{itemize}
+\end{frame}
+
+\section{Manipulating Grammars}
 
 \end{document}
