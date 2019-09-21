@@ -1,0 +1,173 @@
+\documentclass[]{beamer}
+\mode<presentation>
+{
+  \usetheme{Warsaw}
+  \definecolor{mcgarnet}{rgb}{0.38, 0, 0.08}
+  \definecolor{mcgray}{rgb}{0.6, 0.6, 0.6}
+  \setbeamercolor{structure}{fg=mcgarnet,bg=mcgray}
+  %\setbeamercovered{transparent}
+}
+
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{syntax}
+\setlength{\grammarindent}{10em}
+
+\newcommand{\imagesource}[1]{{\centering\hfill\break\hbox{\scriptsize Image Source:\thinspace{\small\itshape #1}}\par}}
+
+\title{06 - Syntax Analysis}
+
+
+\author{Dr. Robert Lowe\\}
+
+\institute[Maryville College] % (optional, but mostly needed)
+{
+  Division of Mathematics and Computer Science\\
+  Maryville College
+}
+
+\date[]{}
+\subject{}
+
+\pgfdeclareimage[height=0.5cm]{university-logo}{images/Maryville-College}
+\logo{\pgfuseimage{university-logo}}
+
+
+
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>{Outline}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Outline}
+  \tableofcontents
+\end{frame}
+
+
+% Structuring a talk is a difficult task and the following structure
+% may not be suitable. Here are some rules that apply for this
+% solution: 
+
+% - Exactly two or three sections (other than the summary).
+% - At *most* three subsections per section.
+% - Talk about 30s to 2min per frame. So there should be between about
+%   15 and 30 frames, all told.
+
+% - A conference audience is likely to know very little of what you
+%   are going to talk about. So *simplify*!
+% - In a 20min talk, getting the main ideas across is hard
+%   enough. Leave out details, even if it means being less precise than
+%   you think necessary.
+% - If you omit details that are vital to the proof/implementation,
+%   just say so once. Everybody will be happy with that.
+
+\section{Syntax Analysis}
+
+\begin{frame}{Syntax Analyzer}
+    \begin{itemize}[<+->]
+        \item There are two main parts to syntax analysis:
+        \begin{itemize}
+            \item \textbf{Lexing} - Process the micro-syntax of the
+                language. 
+            \item \textbf{Syntax Analysis} - Process the context-free
+                syntax of the language.
+        \end{itemize}
+        \item The syntax analyzer can be created directly from the BNF
+            specification of a language.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Lexical Analysis Abstraction}
+    For now our lexer will consist of the following:
+    \begin{itemize}[<+->]
+        \item A global variable \texttt{symbol}
+        \item \textbf{procedure} \texttt{next\_symbol}
+        \begin{enumerate}
+            \item Place the next basic symbol in the global variable.
+            \item Advance the input stream.
+        \end{enumerate}
+        \item \textbf{procedure} \texttt{mustbe(s)}
+        \begin{enumerate}
+            \item if \texttt{s} is the \texttt{symbol}, call
+                \texttt{next\_symbol}
+            \item Otherwise, report an error.
+        \end{enumerate}
+        \item \textbf{procedure} \texttt{have(s)}
+        \begin{enumerate}
+            \item if \texttt{s} is the \texttt{symbol}, call
+                \texttt{next\_symbol} and return \texttt{true}.
+            \item Otherwise, return \texttt{false}
+        \end{enumerate}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Coding from BNF}
+    \begin{itemize}[<+->]
+        \item A production like this: \texttt{< > ::= a<A>}
+        \item Would be coded: 
+            \newline\texttt{mustbe(``a''); A();}
+        \item A production like this: \texttt{< > ::= a<A> | b<B>}
+        \item Would be coded:
+            \newline \texttt{if have(``a'') then A() else \{
+            mustbe(``b''); B() \} }
+        \item A production like this: \texttt{< > ::= a<A> | b<B> | c <C> }
+        \item Would be coded as:
+        \begin{verbatim}
+            if( have("a") ) { A(); }
+            else if( have("b") ) { B(); }
+            else { mustbe("c"); C(); }
+        \end{verbatim}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Repetition Productions}
+    \texttt{< > ::= <A> [b<A>]*} (Where * means repeat ``zero or more times'')
+
+    \pause
+
+    \begin{verbatim}
+    do {
+        A();
+    } while(have("b"));
+    \end{verbatim}
+\end{frame}
+
+\section{Example: L Programming Language}
+\begin{frame}{The Grammar of L}
+\begin{grammar}
+    <program> ::= <expression>
+
+    <expression> ::= <term> <expression-tail>
+    
+    <expression-tail> ::= $\lambda$ | '+' <term> <expression-tail>
+    
+    <term> ::= <factor> <term-tail>
+    
+    <term-tail> ::= $\lambda$ | '*' <factor> <term-tail>
+    
+    <factor> ::= <unit> | '(' <expression> ')'
+    
+    <unit> ::= '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8'
+    | '9'
+\end{grammar}
+
+\uncover<2->{\textbf{Activity: }Let's create a syntax analyzer for L!}
+\end{frame}
+
+\end{document}
+
+
