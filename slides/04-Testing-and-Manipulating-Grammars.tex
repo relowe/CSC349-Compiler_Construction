@@ -179,7 +179,7 @@
   \begin{itemize}[<+->]
       \item Suppose we have a target expansion $A \rightarrow \alpha_1 | \alpha_2 | \ldots | \alpha_n$
       \item We must be able to select $\alpha_i$ by looking at the next symbol.
-      \item For each production, we must have a disjoin \textbf{director set} $D(A\rightarrow \alpha_i)$.
+      \item For each production, we must have a disjoint \textbf{director set} $D(A\rightarrow \alpha_i)$.
       \item For lookup buffer $s$, $A \rightarrow \alpha_i$ iff $s \in D(A \rightarrow \alpha_i)$.
       \item We can also have a set of symbols which immediately identify as an error if they are encountered.
   \end{itemize}
@@ -233,8 +233,8 @@
 
 \begin{frame}{The EMPTY Property}
   \begin{itemize}[<+->]
-    \item We need to find if $\gamma \stackrel{*}{\Rightarrow}$ exists.
-    \item If ti does we say $\mathrm{EMPTY}(\gamma)$ is true.
+    \item We need to find if $\gamma \stackrel{*}{\Rightarrow} \lambda$ exists.
+    \item If it does we say $\mathrm{EMPTY}(\gamma)$ is true.
     \item the $\mathrm{EMPTY}$ property can be defined as follows:
     \begin{enumerate}
         \item If $\gamma \in T$ then $\mathrm{EMPTY}(\gamma) = \mathrm{false}$
@@ -252,10 +252,10 @@
 \begin{frame}{The FOLLOW Function}
   \begin{itemize}[<+->]
     \item Suppose we have a terminal $t$ in our look-ahead buffer.
-    \item When $\alpha_i \stackrel{*}{\Rightarrow}$, A production $A$ is the correct choice for the parser if $t$ can follow $A$.
+    \item When $\alpha_i \stackrel{*}{\Rightarrow} A$, production $A$ is the correct choice for the parser if $t$ can follow $A$.
     \item We calculate $\mathrm{FOLLOW}$ like this:
     \begin{enumerate}
-      \item First, caclulate $\mathrm{FINISH}$ (the set of all terminals that can end the prouction)
+      \item First, calculate $\mathrm{FINISH}$ (the set of all terminals that can end the production)
       \item Next, we add the $\mathrm{START(\beta_i)}$ for all $\beta_i$ that can follow $A$
     \end{enumerate}
     \item Let's do this for $G$!
