@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <cctype>
+#include <cstdlib>
 #include "lexer.h"
 
 using namespace std;
@@ -211,7 +212,9 @@ void mustbe(Token_Type t)
         return;
     }
 
+    //halt on error
     cerr << "Unexpected token: " << cur << endl;
+    exit(1);
 }
 
 
