@@ -198,7 +198,6 @@ Token curr_symbol()
 bool have(Token_Type t)  
 {
     if(cur.type == t) {
-        next_symbol();
         return true;
     }
 
