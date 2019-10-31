@@ -1,0 +1,257 @@
+\documentclass[]{beamer}
+\mode<presentation>
+{
+  \usetheme{Warsaw}
+  \definecolor{mcgarnet}{rgb}{0.38, 0, 0.08}
+  \definecolor{mcgray}{rgb}{0.6, 0.6, 0.6}
+  \setbeamercolor{structure}{fg=mcgarnet,bg=mcgray}
+  %\setbeamercovered{transparent}
+}
+
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{tikz}
+\usepackage{graphicx}
+
+\newcommand{\imagesource}[1]{{\centering\hfill\break\hbox{\scriptsize Image Source:\thinspace{\small\itshape #1}}\par}}
+
+\title{08 - Symbol Tables}
+
+
+\author{Dr. Robert Lowe\\}
+
+\institute[Maryville College] % (optional, but mostly needed)
+{
+  Division of Mathematics and Computer Science\\
+  Maryville College
+}
+
+\date[]{}
+\subject{}
+
+\pgfdeclareimage[height=0.5cm]{university-logo}{images/Maryville-College}
+\logo{\pgfuseimage{university-logo}}
+
+
+
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>{Outline}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Outline}
+  \tableofcontents
+\end{frame}
+
+
+% Structuring a talk is a difficult task and the following structure
+% may not be suitable. Here are some rules that apply for this
+% solution: 
+
+% - Exactly two or three sections (other than the summary).
+% - At *most* three subsections per section.
+% - Talk about 30s to 2min per frame. So there should be between about
+%   15 and 30 frames, all told.
+
+% - A conference audience is likely to know very little of what you
+%   are going to talk about. So *simplify*!
+% - In a 20min talk, getting the main ideas across is hard
+%   enough. Leave out details, even if it means being less precise than
+%   you think necessary.
+% - If you omit details that are vital to the proof/implementation,
+%   just say so once. Everybody will be happy with that.
+
+\section{Symbol Tables}
+\begin{frame}{Purpose}
+    \begin{itemize}[<+->]
+        \item A symbol table tracks declarations within a program.
+        \item If a language has more than one scope, it has more than
+            one symbol table.
+        \item When a symbol is used in a program, the symbol table(s)
+            are checked to ensure that the symbol exists.
+        \item Symbol tables account for the unpredictable nature of
+            programmer symbols.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Error Detection}
+    \begin{itemize}[<+->]
+        \item Symbol tables are used to perform error detecting during
+            syntax analysis.
+        \item \textbf{Re-declaration Errors} -- when a symbol
+            which is already in the table is declared again. 
+        \item \textbf{Undefined Symbol Errors} -- when a symbol
+            is used before it is declared.
+        \item \textbf{Type Error} -- when a symbol's type makes it
+            invalid in some context.
+        \item Note that whether these are errors is dependent upon the
+            programming language in question.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Symbol Table Functions}
+    \begin{itemize}[<+->]
+        \item Symbol tables have two basic operations:
+        \begin{description}
+            \item[\texttt{declare\_symbol(s, t)}] -- Declare a symbol \texttt{s} of some
+                type \texttt{t}.
+            \item[\texttt{check\_symbol(s)}] -- Check to see if a symbol exists
+                in the table.
+        \end{description}
+        \item Note that both of these functions should raise an error
+            should they detect one.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Language Implications}
+    \begin{itemize}[<+->]
+        \item When does declaration of symbols occur in a language?
+        \item What types exist? (We will do more with type checking
+            layer)
+        \item How does a language cope with undefined symbols?
+        \item When are symbols used in the language?
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Integration With Syntax Analyzer}
+    \begin{itemize}[<+->]
+        \item Any part of the grammar which declares a symbol must add
+            the symbol to the appropriate symbol table.
+        \item Any part of the grammar which uses a symbol must check
+            the symbol table to see if the symbol exists.
+        \item Errors in the symbol table should be detected and
+            handled as the program is parsed.
+    \end{itemize}
+\end{frame}
+
+\section{Implementation}
+\begin{frame}{Required Information}
+    \begin{itemize}[<+->]
+        \item The symbol table should maintain some information about
+            the symbols in a program.
+        \item The name of the symbol.
+        \item The type of the symbol.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Example Symbol Table}
+    \begin{itemize}[<+->]
+        \item For example, consider the following C program:
+        \begin{verbatim}
+int main() 
+{
+    int var1;
+    double var2;
+}
+        \end{verbatim}
+        \item The symbol tables would be:
+        \begin{columns}
+            \column{0.5\textwidth}
+                Global Scope
+                \newline\begin{tabular}{|l|l|}
+                    \hline
+                    \textbf{Symbol} & \textbf{Type} \\
+                    \hline
+                    \texttt{main} & Integer Function \\
+                    \hline
+                \end{tabular}
+            \column{0.5\textwidth}
+                Local Scope for \texttt{main}
+                \newline\begin{tabular}{|l|l|}
+                    \hline
+                    \textbf{Symbol} & \textbf{Type} \\
+                    \hline
+                    \texttt{var1} & \texttt{int}\\
+                    \hline
+                    \texttt{var2} & \texttt{double}\\
+                    \hline
+                \end{tabular}
+        \end{columns}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Common Data Structures}
+    \begin{itemize}[<+->]
+        \item Symbols need to be added and searched efficiently.
+        \item Common implementation strategies include:
+        \begin{itemize}
+            \item Hash Table
+            \item Binary Search Trees
+            \item Sorted Linked Lists
+            \item Sorted Vectors
+        \end{itemize}
+        \item Hash tables are by far the most common implementation
+            method. 
+        \item Discuss: Why use hash tables?
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{C++ \texttt{map}}
+    \begin{itemize}[<+->]
+        \item The STL contains a structure called \texttt{map}, which
+            is an associated list of key value pairs.
+        \item Maps are declared as follows:
+            \newline\verb!map<key_type, val_type> name;!
+        \item For a symbol tables \verb!key_type! should probably be
+            \texttt{string} and the \verb!val_type! should be some
+            appropriate representation of the symbol's type.
+        \item There are two critical functions for symbol table use:
+            \begin{itemize}
+                \item \texttt{operator[]} -- Index operations for
+                insertion:
+                \newline\verb!table["var1"] = integer_type;!
+                \item \texttt{count(key)} -- Count the number of
+                    elements matching the key (0 or 1).
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\section{Looplang Symbols}
+
+\begin{frame}[fragile]{Declarations}
+    \begin{itemize}[<+->]
+        \item When does looplang declare variables?
+        \item Looplang declares variables on the first assignment.
+        \item What types can looplang symbols take?
+        \item Just one, integer.
+        \item We could just use a bool to indicate presence of
+            a symbol.
+        \item Here is pseudocode for when we do a declaration:
+        \begin{verbatim}
+During the parsing of assignments:
+if s does not exist in the table
+    table[s] = true
+        \end{verbatim}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Symbol Use}
+    \begin{itemize}[<+->]
+        \item When are symbols used in looplang?
+        \item They can be in any operand, or on the left hand side of
+            assignment.
+        \item Operand handling:
+        \begin{verbatim}
+In operand parsing:
+if table.count(s) == 0
+   error! 
+        \end{verbatim}
+    \end{itemize}
+\end{frame}
+
+
+\end{document}
+
+
