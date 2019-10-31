@@ -1,7 +1,7 @@
 CPPFLAGS = -Wall
 
 phase2-driver: main.o parser.o precompiled/lexer.o
-	g++ -o phase2-driver main.o parser.o precompiled/lexer.o
+	g++ -no-pie -o phase2-driver main.o parser.o precompiled/lexer.o
 
 parser.o:	lexer.h parser.h
 main.o:		lexer.h parser.h
