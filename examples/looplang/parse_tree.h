@@ -26,6 +26,9 @@ class Parse_Node
 public:
     virtual void print(int level)=0;
     virtual ~Parse_Node() { }
+
+    virtual void build_symtab() {}
+    virtual void check_symbols() {}
 };
 
 
@@ -35,6 +38,8 @@ public:
     Program_Node(Statement_List_Node* slist) : slist(slist) { }
 
     virtual void print(int level);
+    virtual void build_symtab();
+    virtual void check_symbols();
 
     ~Program_Node();
 private:
@@ -47,6 +52,8 @@ class Statement_List_Node : public Parse_Node
 public:
     virtual void append(Statement_Node *statement);
     virtual void print(int level);
+    virtual void build_symtab();
+    virtual void check_symbols();
 
     ~Statement_List_Node();
 private:
@@ -67,6 +74,8 @@ public:
       identifier(identifier), expr(expr) { }
 
     virtual void print(int level);
+    virtual void build_symtab();
+    virtual void check_symbols();
 
     ~Assignment_Stmnt_Node();
 private:
@@ -80,6 +89,9 @@ class Loop_Stmnt_Node : public Statement_Node
 public:
     Loop_Stmnt_Node(Condition_Node *cond, Statement_List_Node *slist)
      :  cond(cond), slist(slist) { }
+
+    virtual void build_symtab();
+    virtual void check_symbols();
     
 
     virtual void print(int level);
@@ -113,6 +125,7 @@ public:
         Expression_Node(left, nullptr, nullptr) { }
                     
     virtual void print(int level);
+    virtual void check_symbols();
     ~Expression_Node();
 private:
     Operand_Node *left;
@@ -129,6 +142,7 @@ public:
         left(left), comp(comp), right(right) { }
 
     virtual void print(int level);
+    virtual void check_symbols();
     ~Condition_Node();
 private:
     Expression_Node *left;
@@ -157,5 +171,7 @@ class Operand_Node : public Token_Node
 {
 public:
     Operand_Node(Token tok) : Token_Node(tok) {} 
+    virtual void build_symtab();
+    virtual void check_symbols();
 };
 #endif
