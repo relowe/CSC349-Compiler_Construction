@@ -1,27 +1,28 @@
 #include <iostream>
 #include "lexer.h"
 #include "parser.h"
+#include "parse_tree.h"
 
 //Function Prototypes
-bool parse_program();
-bool parse_statement_list(Token_Type end);
-bool parse_statement();
-bool parse_identifier_expression();
-bool parse_loop_stmnt();
-bool parse_print_stmnt();
-bool parse_expression();
-bool parse_operand();
-bool parse_operator();
-bool parse_condition();
-bool parse_comparison();
+Program_Node *parse_program();
+Statement_List_Node *parse_statement_list(Token_Type end);
+Statement_Node *parse_statement();
+Statement_Node *parse_identifier_expression();
+Loop_Stmnt_Node *parse_loop_stmnt();
+Print_Stmnt_Node *parse_print_stmnt();
+Expression_Node *parse_expression();
+Operand_Node *parse_operand();
+Token_Node *parse_operator();
+Condition_Node *parse_condition();
+Token_Node *parse_comparison();
 
 /*
 < program > ::= < statement-list >
 */
-bool parse_program() 
+Program_Node *parse_program() 
 {
     next_symbol();
-    bool result = parse_statement_list(EOF_TOK);
+    Program_Node *result = new Program_Node(parse_statement_list(EOF_TOK));
     
     //verification
     mustbe(EOF_TOK);
@@ -34,13 +35,14 @@ bool parse_program()
 < statement-list > ::= < statement > |
                       < statement > < statement-list >
 */
-bool parse_statement_list(Token_Type end)
+Statement_List_Node *parse_statement_list(Token_Type end)
 {
+    Statement_List_Node *result = new Statement_List_Node();
     do {
-        parse_statement();
+        result->append(parse_statement());
     } while(not have(end));
 
-    return true;
+    return result;
 }
 
 
@@ -50,7 +52,7 @@ bool parse_statement_list(Token_Type end)
                  < print-stmnt > |
                  < expression >
 */
-bool parse_statement()
+Statement_Node *parse_statement()
 {
     if(have(WHILE_TOK)) {
         return parse_loop_stmnt();
@@ -67,13 +69,15 @@ bool parse_statement()
 /*
 < loop-stmnt > ::= while < condition > < statement-list > end
 */
-bool parse_loop_stmnt()
+Loop_Stmnt_Node *parse_loop_stmnt()
 {
     //consume the while
     mustbe(WHILE_TOK);
     next_symbol();
 
-    bool result = parse_condition() and parse_statement_list(END_TOK);
+    Loop_Stmnt_Node *result = 
+      new Loop_Stmnt_Node(parse_condition(),
+                          parse_statement_list(END_TOK));
 
     //consume the end
     mustbe(END_TOK);
@@ -85,13 +89,13 @@ bool parse_loop_stmnt()
 /*
 < print-stmnt > ::= print < expression >
 */
-bool parse_print_stmnt() 
+Print_Stmnt_Node *parse_print_stmnt() 
 {
     //consume the print token
     mustbe(PRINT_TOK);
     next_symbol();
 
-    return parse_expression();
+    return new Print_Stmnt_Node(parse_expression());
 }
 
 
@@ -99,16 +103,19 @@ bool parse_print_stmnt()
 < expression > ::= < operand > |
                   < operand > < operator > < expression >
 */
-bool parse_expression()
+Expression_Node *parse_expression()
 {
-    parse_operand();
+    Operand_Node * left = parse_operand();
+    Token_Node * op = parse_operator();
 
-    if(parse_operator()) {
-        return parse_expression();
+    if(op != nullptr) {
+        return new Expression_Node(left,
+                                   op,
+                                   parse_expression());
     }
 
     //end of expression
-    return true;
+    return new Expression_Node(left);
 }
 
 
@@ -119,90 +126,90 @@ bool parse_expression()
                                    = < expression > |
                                    LAMBDA
 */
-bool parse_identifier_expression()
+Statement_Node *parse_identifier_expression()
 {
     //consume the identifier
     mustbe(IDENTIFIER_TOK);
-    next_symbol();
+    Operand_Node *left = parse_operand();
 
     //detect operator case
-    if(parse_operator()) {
-        return parse_expression();
+    Token_Node *op;
+    if((op = parse_operator()) != nullptr) {
+        return new Expression_Node(left,
+                                   op, 
+                                   parse_expression());
     } else if(have(ASSIGN_TOK)) {
         next_symbol();
-        return parse_expression();
+        return new Assignment_Stmnt_Node(left, parse_expression());
     }
 
-    return true;
+    return new Expression_Node(left);
 }
 
 /*
 < operand > ::= < identifier > | < integer >
 */
-bool parse_operand()
+Operand_Node * parse_operand()
 {
+    Operand_Node *result;
+
     //consume the operand
     if(have(IDENTIFIER_TOK) or have(INTEGER_TOK)) {
+        result = new Operand_Node(curr_symbol());
         next_symbol();
     } else {
         mustbe(INTEGER_TOK); //force the error
     }
 
-    return true;
+    return result;
 }
 
 /*
 < operator > ::= + | -
 */
-bool parse_operator()
+Token_Node *parse_operator()
 {
     //consume the operator
     if(have(PLUS_TOK) or have(MINUS_TOK)) {
+        Token_Node *result = new Token_Node(curr_symbol());
         next_symbol();
-        return true;
+        return result;
     }
 
-    return false;
+    return nullptr;
 }
 
 /*
 < condition > ::= < expression > < comparison > < expression >
 */
-bool parse_condition()
+Condition_Node *parse_condition()
 {
-    bool result;
-
-    result = parse_expression();
-    result = result and parse_comparison();
-    result = result and parse_expression();
-
-    return result;
+    return new Condition_Node( parse_expression(),
+                               parse_comparison(),
+                               parse_expression() );
 }
 
 
 /*
 < comparison > ::= < | <= | > | >= | == | !=
 */
-bool parse_comparison()
+Token_Node *parse_comparison()
 {
+    //TODO: CLEANUP
     if(have(LESS_TOK) or have(LESS_EQUAL_TOK)) {
-        next_symbol();
-        return true;
     } else if(have(GREATER_TOK) or have(GREATER_EQUAL_TOK)) {
-        next_symbol();
-        return true;
     } else if(have(EQUAL_TOK)) {
-        next_symbol();
-        return true;
     } else {
         mustbe(NOT_EQUAL_TOK);
-        next_symbol();
-        return true;
     }
+
+    Token_Node *result = new Token_Node(curr_symbol());
+    next_symbol();
+    return result;
 }
 
 
-bool parse()
+Parse_Node *parse()
 {
     return parse_program();    
 }

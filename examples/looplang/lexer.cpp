@@ -138,15 +138,15 @@ static void keyword(string k, Token_Type t)
 //get the next symbol
 void next_symbol()
 {
+    //skip spaces
+    while(isspace(cin.peek())) { cin.get(); }
+
     //detect end of file
     if(cin.eof()) {
         cur.type = EOF_TOK;
         cur.repn = "";
         return;
     }
-
-    //skip spaces
-    while(isspace(cin.peek())) { cin.get(); }
 
     char c = cin.peek();
     if(c == '+') {

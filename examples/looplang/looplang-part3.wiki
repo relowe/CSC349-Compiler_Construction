@@ -1,0 +1,823 @@
+== lexer.h ==
+'''File:''' lexer.h
+<syntaxhighlight lang="cpp">
+//Definitions for the lexical analyzer
+#ifndef LEXER_H
+#define LEXER_H
+#include <iostream>
+#include <string>
+
+enum Token_Type { INVALID_TOK=0, ASSIGN_TOK, PLUS_TOK, MINUS_TOK, LESS_TOK,
+                  LESS_EQUAL_TOK, GREATER_TOK, GREATER_EQUAL_TOK, EQUAL_TOK,
+                  NOT_EQUAL_TOK, INTEGER_TOK, IDENTIFIER_TOK, WHILE_TOK,
+                  END_TOK, PRINT_TOK, EOF_TOK}; 
+struct Token {
+    Token_Type type;  //type of the token
+    std::string repn; //representation of the token
+};
+
+//lexer interface
+void next_symbol();        //get the next symbol
+Token curr_symbol();       //return the current symbol
+bool have(Token_Type t);   //if we have the token, advance and return true 
+                           //false (with no advance) o.w.
+void mustbe(Token_Type t); //like have, but prints error message on failure
+std::ostream & operator<<(std::ostream &os, Token t);
+#endif
+</syntaxhighlight>
+
+
+== parse_tree.cpp ==
+'''File:''' parse_tree.cpp
+<syntaxhighlight lang="cpp">
+#include <iostream>
+#include <vector>
+#include "lexer.h"
+#include "parse_tree.h"
+
+/////////////////////////
+// Program Node
+/////////////////////////
+void Program_Node::print(int level)
+{
+    std::cout << std::setw(level) << "" << "Program" << std::endl;
+    slist->print(level+1);
+}
+
+
+Program_Node::~Program_Node() 
+{ 
+    delete slist; 
+}
+
+
+
+/////////////////////////
+// Statement List Node 
+/////////////////////////
+void Statement_List_Node::append(Statement_Node *statement) 
+{
+    list.push_back(statement);
+}
+
+
+void Statement_List_Node::print(int level) 
+{
+    for(auto itr = list.begin(); itr != list.end(); itr++) {
+        (*itr)->print(level+1);
+    }
+}
+
+Statement_List_Node::~Statement_List_Node() 
+{
+    for(auto itr = list.begin(); itr != list.end(); itr++) {
+        delete *itr;
+    }
+}
+
+
+/////////////////////////
+// Statement Node 
+/////////////////////////
+
+
+/////////////////////////
+// Assignment Stmnt Node
+/////////////////////////
+void Assignment_Stmnt_Node::print(int level) 
+{
+    identifier->print(level+1);
+    std::cout << std::setw(level) << "" << "=" << std::endl;
+    expr->print(level+1);
+}
+
+Assignment_Stmnt_Node::~Assignment_Stmnt_Node() 
+{ 
+    delete expr; 
+    delete identifier;
+}
+
+
+/////////////////////////
+// Loop Stmnt Node
+/////////////////////////
+void Loop_Stmnt_Node::print(int level) 
+{
+    std::cout << std::setw(level) << "" << "while" << std::endl;
+    cond->print(level+1);
+    slist->print(level+1);
+}
+
+Loop_Stmnt_Node::~Loop_Stmnt_Node() 
+{ 
+    delete cond; 
+    delete slist; 
+}
+
+
+/////////////////////////
+// Print Stmnt Node
+/////////////////////////
+void Print_Stmnt_Node::print(int level) 
+{
+    std::cout << std::setw(level) << "" << "print" << std::endl;
+    expr->print(level+1);
+}
+
+Print_Stmnt_Node::~Print_Stmnt_Node() 
+{ 
+    delete expr; 
+}
+
+
+/////////////////////////
+// Expression Node
+/////////////////////////
+void Expression_Node::print(int level)
+{
+    //print operand binop expression form
+    if(binop != nullptr) {
+        left->print(level+1);
+        binop->print(level);
+        right->print(level+1);
+    } else {
+        //single operand form
+        left->print(level);
+    }
+}
+
+Expression_Node::~Expression_Node()
+{
+    delete left;
+    if(binop != nullptr) {
+        delete binop;
+        delete right;
+    }
+}
+
+
+/////////////////////////
+// Condition Node
+/////////////////////////
+void Condition_Node::print(int level) 
+{
+    left->print(level+1);
+    comp->print(level);
+    right->print(level+1);
+}
+
+Condition_Node::~Condition_Node()
+{
+    delete left;
+    delete comp;
+    delete right;
+}
+</syntaxhighlight>
+
+
+== parser.h ==
+'''File:''' parser.h
+<syntaxhighlight lang="cpp">
+//return parse tree
+#include "parse_tree.h"
+Parse_Node *parse();
+</syntaxhighlight>
+
+
+== parser.cpp ==
+'''File:''' parser.cpp
+<syntaxhighlight lang="cpp">
+#include <iostream>
+#include "lexer.h"
+#include "parser.h"
+#include "parse_tree.h"
+
+//Function Prototypes
+Program_Node *parse_program();
+Statement_List_Node *parse_statement_list(Token_Type end);
+Statement_Node *parse_statement();
+Statement_Node *parse_identifier_expression();
+Loop_Stmnt_Node *parse_loop_stmnt();
+Print_Stmnt_Node *parse_print_stmnt();
+Expression_Node *parse_expression();
+Operand_Node *parse_operand();
+Token_Node *parse_operator();
+Condition_Node *parse_condition();
+Token_Node *parse_comparison();
+
+/*
+< program > ::= < statement-list >
+*/
+Program_Node *parse_program() 
+{
+    next_symbol();
+    Program_Node *result = new Program_Node(parse_statement_list(EOF_TOK));
+    
+    //verification
+    mustbe(EOF_TOK);
+    return result;
+}
+
+
+/*
+
+< statement-list > ::= < statement > |
+                      < statement > < statement-list >
+*/
+Statement_List_Node *parse_statement_list(Token_Type end)
+{
+    Statement_List_Node *result = new Statement_List_Node();
+    do {
+        result->append(parse_statement());
+    } while(not have(end));
+
+    return result;
+}
+
+
+/*
+< statement > ::= < identifier-expression > |
+                 < loop-stmnt > |
+                 < print-stmnt > |
+                 < expression >
+*/
+Statement_Node *parse_statement()
+{
+    if(have(WHILE_TOK)) {
+        return parse_loop_stmnt();
+    } else if(have(PRINT_TOK)) {
+        return parse_print_stmnt();
+    } else if(have(IDENTIFIER_TOK)) {
+        return parse_identifier_expression();
+    } else {
+        return parse_expression();
+    }
+}
+
+
+/*
+< loop-stmnt > ::= while < condition > < statement-list > end
+*/
+Loop_Stmnt_Node *parse_loop_stmnt()
+{
+    //consume the while
+    mustbe(WHILE_TOK);
+    next_symbol();
+
+    Loop_Stmnt_Node *result = 
+      new Loop_Stmnt_Node(parse_condition(),
+                          parse_statement_list(END_TOK));
+
+    //consume the end
+    mustbe(END_TOK);
+    next_symbol();
+
+    return result;
+}
+
+/*
+< print-stmnt > ::= print < expression >
+*/
+Print_Stmnt_Node *parse_print_stmnt() 
+{
+    //consume the print token
+    mustbe(PRINT_TOK);
+    next_symbol();
+
+    return new Print_Stmnt_Node(parse_expression());
+}
+
+
+/*
+< expression > ::= < operand > |
+                  < operand > < operator > < expression >
+*/
+Expression_Node *parse_expression()
+{
+    Operand_Node * left = parse_operand();
+    Token_Node * op = parse_operator();
+
+    if(op != nullptr) {
+        return new Expression_Node(left,
+                                   op,
+                                   parse_expression());
+    }
+
+    //end of expression
+    return new Expression_Node(left);
+}
+
+
+/*
+< identifier-expression > ::= < identifier > < identifier-expression-tail >
+
+< identifier-expression-tail > ::= < operator > < expression > |  
+                                   = < expression > |
+                                   LAMBDA
+*/
+Statement_Node *parse_identifier_expression()
+{
+    //consume the identifier
+    mustbe(IDENTIFIER_TOK);
+    Operand_Node *left = parse_operand();
+
+    //detect operator case
+    Token_Node *op;
+    if((op = parse_operator()) != nullptr) {
+        return new Expression_Node(left,
+                                   op, 
+                                   parse_expression());
+    } else if(have(ASSIGN_TOK)) {
+        next_symbol();
+        return new Assignment_Stmnt_Node(left, parse_expression());
+    }
+
+    return new Expression_Node(left);
+}
+
+/*
+< operand > ::= < identifier > | < integer >
+*/
+Operand_Node * parse_operand()
+{
+    Operand_Node *result;
+
+    //consume the operand
+    if(have(IDENTIFIER_TOK) or have(INTEGER_TOK)) {
+        result = new Operand_Node(curr_symbol());
+        next_symbol();
+    } else {
+        mustbe(INTEGER_TOK); //force the error
+    }
+
+    return result;
+}
+
+/*
+< operator > ::= + | -
+*/
+Token_Node *parse_operator()
+{
+    //consume the operator
+    if(have(PLUS_TOK) or have(MINUS_TOK)) {
+        Token_Node *result = new Token_Node(curr_symbol());
+        next_symbol();
+        return result;
+    }
+
+    return nullptr;
+}
+
+/*
+< condition > ::= < expression > < comparison > < expression >
+*/
+Condition_Node *parse_condition()
+{
+    return new Condition_Node( parse_expression(),
+                               parse_comparison(),
+                               parse_expression() );
+}
+
+
+/*
+< comparison > ::= < | <= | > | >= | == | !=
+*/
+Token_Node *parse_comparison()
+{
+    //TODO: CLEANUP
+    if(have(LESS_TOK) or have(LESS_EQUAL_TOK)) {
+    } else if(have(GREATER_TOK) or have(GREATER_EQUAL_TOK)) {
+    } else if(have(EQUAL_TOK)) {
+    } else {
+        mustbe(NOT_EQUAL_TOK);
+    }
+
+    Token_Node *result = new Token_Node(curr_symbol());
+    next_symbol();
+    return result;
+}
+
+
+Parse_Node *parse()
+{
+    return parse_program();    
+}
+</syntaxhighlight>
+
+
+== parse_tree.h ==
+'''File:''' parse_tree.h
+<syntaxhighlight lang="cpp">
+// This file contains data structures for parse trees for the loop
+// language
+#include <vector>
+#include <string>
+#include <iomanip>
+#include "lexer.h"
+#ifndef PARSE_TREE_H
+#define PARSE_TREE_H
+
+
+//forward declarations
+class Parse_Node;
+class Statement_List_Node;
+class Statement_Node;
+class Assignment_Stmnt_Node;
+class Loop_Stmnt_Node;
+class Print_Stmnt_Node;
+class Expression_Node;
+class Condition_Node;
+class Operand_Node;
+class Token_Node;
+
+//The basic parser node abstract class
+class Parse_Node 
+{
+public:
+    virtual void print(int level)=0;
+    virtual ~Parse_Node() { }
+};
+
+
+class Program_Node : public Parse_Node 
+{
+public:
+    Program_Node(Statement_List_Node* slist) : slist(slist) { }
+
+    virtual void print(int level);
+
+    ~Program_Node();
+private:
+    Statement_List_Node *slist;
+};
+
+
+class Statement_List_Node : public Parse_Node
+{
+public:
+    virtual void append(Statement_Node *statement);
+    virtual void print(int level);
+
+    ~Statement_List_Node();
+private:
+    std::vector<Statement_Node *> list;
+};
+
+
+class Statement_Node : public Parse_Node 
+{
+    //Just an article of polymorphism...
+};
+
+
+class Assignment_Stmnt_Node : public Statement_Node
+{
+public: 
+    Assignment_Stmnt_Node(Operand_Node *identifier, Expression_Node *expr) : 
+      identifier(identifier), expr(expr) { }
+
+    virtual void print(int level);
+
+    ~Assignment_Stmnt_Node();
+private:
+    Operand_Node *identifier;
+    Expression_Node *expr;
+};
+
+
+class Loop_Stmnt_Node : public Statement_Node
+{
+public:
+    Loop_Stmnt_Node(Condition_Node *cond, Statement_List_Node *slist)
+     :  cond(cond), slist(slist) { }
+    
+
+    virtual void print(int level);
+    ~Loop_Stmnt_Node();
+private:
+    Condition_Node *cond;
+    Statement_List_Node *slist;
+};
+
+
+class Print_Stmnt_Node : public Statement_Node
+{
+public:
+    Print_Stmnt_Node(Expression_Node *expr) : expr(expr) { }
+
+    virtual void print(int level);
+
+    ~Print_Stmnt_Node();
+private:
+    Expression_Node *expr;
+};
+
+
+class Expression_Node : public Statement_Node 
+{
+public:
+    Expression_Node(Operand_Node *left, Token_Node *binop,
+                    Expression_Node *right)
+     : left(left), binop(binop), right(right){ }
+    Expression_Node(Operand_Node *left) :
+        Expression_Node(left, nullptr, nullptr) { }
+                    
+    virtual void print(int level);
+    ~Expression_Node();
+private:
+    Operand_Node *left;
+    Token_Node *binop;
+    Expression_Node *right;
+};
+
+
+class Condition_Node : public Parse_Node
+{
+public:
+    Condition_Node(Expression_Node *left, Token_Node *comp,
+                   Expression_Node *right) :
+        left(left), comp(comp), right(right) { }
+
+    virtual void print(int level);
+    ~Condition_Node();
+private:
+    Expression_Node *left;
+    Token_Node *comp;
+    Expression_Node *right;
+};
+
+
+class Token_Node : public Parse_Node
+{
+public:
+    Token_Node(Token tok) : tok(tok) { }
+
+    Token get_token() { return tok; }
+
+    virtual void print(int level) 
+    {
+        std::cout << std::setw(level) <<  "" << tok << std::endl;
+    }
+private:
+    Token tok;
+};
+
+
+class Operand_Node : public Token_Node
+{
+public:
+    Operand_Node(Token tok) : Token_Node(tok) {} 
+};
+#endif
+</syntaxhighlight>
+
+
+== lexer.cpp ==
+'''File:''' lexer.cpp
+<syntaxhighlight lang="cpp">
+// Lexical analyzer for loop lang
+#include <iostream>
+#include <string>
+#include <cctype>
+#include <cstdlib>
+#include "lexer.h"
+
+using namespace std;
+
+static const char* TOKEN_LABEL[] = { "INVALID_TOK", "ASSIGN_TOK", "PLUS_TOK",
+                                     "MINUS_TOK", "LESS_TOK", "LESS_EQUAL_TOK",
+                                     "GREATER_TOK", "GREATER_EQUAL_TOK",
+                                     "EQUAL_TOK", "NOT_EQUAL_TOK", "INTEGER_TOK",
+                                     "IDENTIFIER_TOK", "WHILE_TOK", "END_TOK",
+                                     "PRINT_TOK", "EOF_TOK"}; 
+static Token cur;  //the current symbol
+
+
+///////////////////////////////////
+//helper functions for the lexer
+///////////////////////////////////
+
+static void lt() 
+{
+    cur.repn = cin.get();
+
+    //check for <=
+    if(cin.peek() == '=') {
+        //<= 
+        cur.repn += cin.get();
+        cur.type = LESS_EQUAL_TOK;
+    } else {
+        cur.type = LESS_TOK;
+    }
+}
+
+
+static void gt() 
+{
+    cur.repn = cin.get();
+
+    //check for >=
+    if(cin.peek() == '=') {
+        //>= 
+        cur.repn += cin.get();
+        cur.type = GREATER_EQUAL_TOK;
+    } else {
+        cur.type = GREATER_TOK;
+    }
+}
+
+
+static void eq()
+{
+    cur.repn = cin.get();
+
+    //check for ==
+    if(cin.peek() == '=') {
+        //== 
+        cur.repn += cin.get();
+        cur.type = EQUAL_TOK;
+    } else {
+        cur.type = ASSIGN_TOK;
+    }
+}
+
+
+//!= processor
+static void neq()
+{
+    cur.repn = cin.get();
+
+    if(cin.peek() != '=') {
+        cur.type = INVALID_TOK;
+        return;
+    }
+
+    //consume the =
+    cur.repn += cin.get();
+    cur.type = NOT_EQUAL_TOK;
+}
+
+
+//integers
+static void integer()
+{
+    //blank integer 
+    cur.repn = "";
+    cur.type = INTEGER_TOK;
+
+    do {
+        //add the digit to the repn
+        cur.repn+= cin.get();
+    } while(isdigit(cin.peek()));
+}
+
+
+//identifiers
+static void identifier()
+{
+    //set our type correctly
+    cur.type = IDENTIFIER_TOK;
+
+    //consume the identifier
+    while(isalnum(cin.peek())) {
+        cur.repn += cin.get();
+    }
+}
+
+
+//keyword
+static void keyword(string k, Token_Type t)
+{
+    //start with empty string
+    cur.repn = "";
+
+    //consume until we no longer match
+    for(int i=0; i<k.length(); i++) {
+        //look for mismatch
+        if(cin.peek() != k[i]) {
+            identifier();
+            return;
+        }
+        cur.repn += cin.get();
+    }
+
+    //detect the end of this chain
+    if(isalnum(cin.peek())) {
+        identifier();
+        return;
+    }
+
+    //yay it's the keyword!
+    cur.type = t; 
+}
+
+
+//get the next symbol
+void next_symbol()
+{
+    //skip spaces
+    while(isspace(cin.peek())) { cin.get(); }
+
+    //detect end of file
+    if(cin.eof()) {
+        cur.type = EOF_TOK;
+        cur.repn = "";
+        return;
+    }
+
+    char c = cin.peek();
+    if(c == '+') {
+        //the plus token
+        cur.type=PLUS_TOK;
+        cur.repn = cin.get();
+    } else if(c == '-') {
+        //the minus token
+        cur.type=MINUS_TOK;
+        cur.repn = cin.get();
+    } else if(c == '<') {
+        //< group
+        lt();
+    } else if(c == '>') {
+        // > group
+        gt();
+    } else if(c == '=') {
+        // = group
+        eq();
+    } else if(c == '!') {
+        // !=
+        neq();
+    } else if(isdigit(c)) {
+        integer();
+    } else if(c == 'w') {
+        keyword("while", WHILE_TOK);
+    } else if(c == 'e') {
+        keyword("end", END_TOK);
+    } else if(c == 'p') {
+        keyword("print", PRINT_TOK);
+    } else if(isalpha(c)) {
+        cur.repn = "";
+        identifier();
+    } else {
+        cur.type = INVALID_TOK;
+        cur.repn = cin.get();
+    }
+}
+
+
+//return the current symbol
+Token curr_symbol()
+{
+    return cur;
+}
+
+//if we have the token, advance and return true 
+//false (with no advance) o.w.
+bool have(Token_Type t)  
+{
+    if(cur.type == t) {
+        return true;
+    }
+
+    return false;
+}
+
+//like have, but prints error message on failure
+void mustbe(Token_Type t)
+{
+    if(have(t)) {
+        return;
+    }
+
+    //halt on error
+    cerr << "Unexpected token: " << cur << endl;
+    exit(1);
+}
+
+
+//print the token
+std::ostream & operator<<(std::ostream &os, Token t)
+{
+    return os << TOKEN_LABEL[t.type] << ": \"" << t.repn << "\"";
+}
+</syntaxhighlight>
+
+
+== looplang.cpp ==
+'''File:''' looplang.cpp
+<syntaxhighlight lang="cpp">
+#include <iostream>
+#include <iomanip>
+#include "lexer.h"
+#include "parser.h"
+
+using namespace std;
+
+int main()
+{
+    Parse_Node * tree = parse();
+    cout << setfill('|');
+    tree->print(0);
+}
+</syntaxhighlight>
+
+
