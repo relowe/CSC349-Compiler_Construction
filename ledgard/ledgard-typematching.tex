@@ -1,0 +1,51 @@
+\documentclass{article}
+\usepackage{syntax}
+\usepackage{amsmath}
+\usepackage[margin=0.5in]{geometry}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{10pt}
+\pagestyle{empty}
+
+\begin{document}
+{\Large\bf Ledgard Type Matching Rules}
+
+[\textbf{Note:} In each of the following rules, `$T$' stands for ``any
+one type'' and `$ST$' stands for ``any one simple type'' (i.e. integer
+or boolean).]
+
+\begin{tabular}{l}
+    $\{ST\} (:= | :=:) \{ST\} ; \Rightarrow \{ void \}$\\
+    \\
+    if $\{ boolean \}$ then $\{ void \}$ end if ; $\Rightarrow \{void\}$\\
+    \\
+    if $\{boolean\}$ then $\{void\}$ else $\{void\}$ end if ; $\Rightarrow \{ void \}$\\
+    \\
+    while $\{boolean\}$ loop $\{void\}$ end loop ; $\Rightarrow \{void\}$ \\
+    \\
+    input $\{ST_1\}, \{ST_2\}, \ldots \{ST_n\} ; \Rightarrow \{void\}$ \\
+    \\
+    output $\{ST_1\}, \{ST_2\}, \ldots \{ST_n\} ; \Rightarrow \{void\}$ \\
+    \\
+    $\langle integer-literal \rangle \Rightarrow \{integer\}$\\
+    \\
+    ( true $|$ false ) $\Rightarrow \{boolean\}$\\
+    \\
+    ( \{ T \} ) $\Rightarrow \{ T \}$\\
+    \\
+    not $\{boolean\} \Rightarrow \{boolean\}$ \\
+    \\
+    $\{$ array of $T\} [ \{integer\} ] \Rightarrow \{T\}$\\
+    \\
+    $\{ ST \} (== | <> ) \{ST\} \Rightarrow \{boolean\}$\\
+    \\
+    $\{integer\} (< | <= | > | >=) \{integer\} \Rightarrow \{boolean\}$ \\
+    \\
+    $\{integer\} (+ | - | * | /) \{integer\} \Rightarrow \{integer\}$ \\
+    \\
+    $\{boolean\} ($ and $|$ or $) \{integer\} \Rightarrow \{boolean\}$ \\
+\end{tabular}
+
+All other productions produce $\{ void \}$
+
+\end{document}
