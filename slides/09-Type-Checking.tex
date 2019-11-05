@@ -1,0 +1,142 @@
+\documentclass[]{beamer}
+\mode<presentation>
+{
+  \usetheme{Warsaw}
+  \definecolor{mcgarnet}{rgb}{0.38, 0, 0.08}
+  \definecolor{mcgray}{rgb}{0.6, 0.6, 0.6}
+  \setbeamercolor{structure}{fg=mcgarnet,bg=mcgray}
+  %\setbeamercovered{transparent}
+}
+
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{tikz}
+\usepackage{graphicx}
+
+\newcommand{\imagesource}[1]{{\centering\hfill\break\hbox{\scriptsize Image Source:\thinspace{\small\itshape #1}}\par}}
+
+\title{09 - Type Checking}
+
+
+\author{Dr. Robert Lowe\\}
+
+\institute[Maryville College] % (optional, but mostly needed)
+{
+  Division of Mathematics and Computer Science\\
+  Maryville College
+}
+
+\date[]{}
+\subject{}
+
+\pgfdeclareimage[height=0.5cm]{university-logo}{images/Maryville-College}
+\logo{\pgfuseimage{university-logo}}
+
+
+
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>{Outline}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+
+% Structuring a talk is a difficult task and the following structure
+% may not be suitable. Here are some rules that apply for this
+% solution: 
+
+% - Exactly two or three sections (other than the summary).
+% - At *most* three subsections per section.
+% - Talk about 30s to 2min per frame. So there should be between about
+%   15 and 30 frames, all told.
+
+% - A conference audience is likely to know very little of what you
+%   are going to talk about. So *simplify*!
+% - In a 20min talk, getting the main ideas across is hard
+%   enough. Leave out details, even if it means being less precise than
+%   you think necessary.
+% - If you omit details that are vital to the proof/implementation,
+%   just say so once. Everybody will be happy with that.
+
+\begin{frame}{Type Productions}
+    \begin{itemize}[<+->]
+        \item Each expression produces some type.
+        \item Types are context sensitive.  Why?
+        \item The symbol table is an integral part of type checking.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Type Rules}
+    \begin{itemize}[<+->]
+        \item Along with the BNF context-free portion of the language,
+            we can specify a series of productions for type rules.
+        \item For instance, in ledgard, the type rules surrounding
+            integer expressions are as follows:  
+            \begin{itemize}
+                \item $\langle integer-literal \rangle \Rightarrow \{integer\}$
+                \item $\{integer\} (+ | - | * | /) \{integer\} \Rightarrow \{integer\}$ 
+            \end{itemize}
+        \item This forms a grammar which an be readily checked
+            for correctness.
+        \item Type checking is typically performed either during
+            syntax analysis or on a parse tree.
+        \item Each production in the language has a type production.
+            In ledgard, the possible results of a production are:
+            \begin{itemize}
+                \item \textbf{Simple Type} - integer, boolean
+                \item \textbf{Type} - integer, boolean, array
+                \item \textbf{void} - Nothing is returned
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Type Representation}
+    \begin{itemize}[<+->]
+        \item Types can be represented in much the same way as
+            lexemes.
+        \item As the parse tree is constructed, the types are
+            checked, and the types productions are noted in the tree.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Type Error Reporting and Recovery}
+    \begin{itemize}[<+->]
+        \item Error checking and reporting is analogous to that of
+            parsing.
+        \item Recovery is typically easier, because for each
+            production we typically know a valid type production.
+        \item Reporting can be tricky in situations with multiple
+            legal productions.
+        \item The basic procedure is this:
+        \begin{enumerate}
+            \item Check the types of the current parse tree node.
+            \item If there is an error, report it.
+            \item Mark the current node as if the production
+                succeeded and continue (or maybe just stop all
+                together!).
+        \end{enumerate}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Exercise: Looplang Type Checking}
+    \begin{itemize}[<+->]
+        \item How many types does looplang have?
+        \item Let's write the type rules for looplang!
+        \item Now, let's add type checking to looplang.
+    \end{itemize}
+\end{frame}
+
+\end{document}
+
+
