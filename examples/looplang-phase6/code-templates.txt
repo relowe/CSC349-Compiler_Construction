@@ -1,0 +1,90 @@
+Program
+=======
+.section .bss
+<code for declaration>
+.section .text
+.globl _start
+_start:
+<code for statements>
+xorl %ebx,%ebx
+movl $1,%eax
+int $0x80
+
+Declaration
+===========
+.lcomm <identifier>, 4
+
+Assignment Statement
+====================
+< code for variable's address >
+< code for the expression >
+popl %eax
+popl %ebx
+movl %eax,(%ebx)
+
+
+Loop Statement
+==============
+label1 :
+<code for the condition>
+popl %eax
+test %eax,%eax
+jz label2
+<code for the body statements>
+jmp label1
+label2 :
+
+Print Statement
+===============
+<code for the expression’s value>
+popl %eax
+call print_dec
+call print_newline
+
+Add
+===============
+<code for left operand>
+<code for right operand>
+popl %ebx
+popl %eax
+addl %ebx,%eax
+jo overflow
+pushl %eax
+
+Sub
+==============
+<code for left operand>
+<code for right operand>
+popl %ebx
+popl %eax
+subl %ebx,%eax
+jo overflow
+pushl %eax
+
+Condition
+=========
+<code for left operand>
+<code for right operand>
+popl %ebx
+popl %eax
+xorl %ecx,%ecx
+cmpl %ebx,%eax
+jn<code for negation of condition> 1f
+incl %ecx
+1: pushl %ecx
+
+Integer Literal
+===============
+pushl $<the literal's value>
+
+Variable Address
+================
+xorl %esi,%esi
+leal <identifier>(%esi),%eax
+pushl %eax
+
+Variable Value
+==============
+< variable address >
+popl %eax
+pushl (%eax)

@@ -1,0 +1,16 @@
+These are the lexemes of the loop language.
+
+ASSIGN_TOK = =
+PLUS_TOK = +
+MINUS_TOK = -
+LESS_TOK = <
+LESS_EQUAL_TOK = <=
+GREATER_TOK = >
+GREATER_EQUAL_TOK = >=
+EQUAL_TOK = ==
+NOT_EQUAL_TOK = !=
+INTEGER_TOK = (0|1|2|3|4|5|6|7|8|9)+
+IDENTIFIER_TOK = (a-zA-Z)((a-zA-Z)|(0|1|2|3|4|5|6|7|8|9))*
+WHILE_TOK = while
+END_TOK = end
+PRINT_TOK = print

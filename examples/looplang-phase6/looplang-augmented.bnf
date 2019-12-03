@@ -1,0 +1,43 @@
+Grammar for the loop language augmented for easy coding.
+< program > ::= < statement-list >
+
+< statement-list > ::= < statement > |
+                      < statement > < statement-list >
+
+< statement > ::= < identifier-expression > |
+                 < loop-stmnt > |
+                 < print-stmnt > |
+                 < expression >
+
+< loop-stmnt > ::= while < condition > < statement-list > end
+
+< print-stmnt > ::= print < expression >
+
+< expression > ::= < operand > |
+                  < operand > < operator > < expression >
+
+< identifier-expression > ::= < identifier > < identifier-expression-tail >
+
+< identifier-expression-tail > ::= < operator > < expression > |  
+                                   = < expression > |
+                                   LAMBDA
+
+< operand > ::= < identifier > | < integer >
+
+< operator > ::= + | -
+
+< condition > ::= < expression > < comparison > < expression >
+
+< comparison > ::= < | <= | > | >= | == | !=
+
+< identifier > ::= < letter > | < letter > < identifier' >
+
+< identifier' > ::= \lambda | 
+                    < identifier > < digit >  |
+                    < identifier > < letter >
+
+< integer > ::= < digit > | < digit > < integer >
+
+< digit >  ::= 0|1|2|3|4|5|6|7|8|9
+
+< letter > ::= a-z | A-Z

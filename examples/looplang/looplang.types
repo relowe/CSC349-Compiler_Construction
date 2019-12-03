@@ -1,0 +1,12 @@
+Type Rules 
+{integer} = {integer} -> {void}
+
+{void} -> {void}
+
+{integer} -> {integer}
+
+{integer} +|- {integer} -> {integer}
+
+{integer} < | <= | > | >= | == | != -> {boolean}
+
+All other production return void

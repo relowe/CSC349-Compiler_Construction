@@ -1,0 +1,497 @@
+== lexer.h ==
+'''File:''' lexer.h
+<syntaxhighlight lang="cpp">
+//Definitions for the lexical analyzer
+#ifndef LEXER_H
+#define LEXER_H
+#include <iostream>
+#include <string>
+
+enum Token_Type { INVALID_TOK=0, ASSIGN_TOK, PLUS_TOK, MINUS_TOK, LESS_TOK,
+                  LESS_EQUAL_TOK, GREATER_TOK, GREATER_EQUAL_TOK, EQUAL_TOK,
+                  NOT_EQUAL_TOK, INTEGER_TOK, IDENTIFIER_TOK, WHILE_TOK,
+                  END_TOK, PRINT_TOK, EOF_TOK}; 
+struct Token {
+    Token_Type type;  //type of the token
+    std::string repn; //representation of the token
+};
+
+//lexer interface
+void next_symbol();        //get the next symbol
+Token curr_symbol();       //return the current symbol
+bool have(Token_Type t);   //if we have the token, advance and return true 
+                           //false (with no advance) o.w.
+void mustbe(Token_Type t); //like have, but prints error message on failure
+std::ostream & operator<<(std::ostream &os, Token t);
+#endif
+</syntaxhighlight>
+
+
+== lexer.cpp ==
+'''File:''' lexer.cpp
+<syntaxhighlight lang="cpp">
+// Lexical analyzer for loop lang
+#include <iostream>
+#include <string>
+#include <cctype>
+#include <cstdlib>
+#include "lexer.h"
+
+using namespace std;
+
+static const char* TOKEN_LABEL[] = { "INVALID_TOK", "ASSIGN_TOK", "PLUS_TOK",
+                                     "MINUS_TOK", "LESS_TOK", "LESS_EQUAL_TOK",
+                                     "GREATER_TOK", "GREATER_EQUAL_TOK",
+                                     "EQUAL_TOK", "NOT_EQUAL_TOK", "INTEGER_TOK",
+                                     "IDENTIFIER_TOK", "WHILE_TOK", "END_TOK",
+                                     "PRINT_TOK", "EOF_TOK"}; 
+static Token cur;  //the current symbol
+
+
+///////////////////////////////////
+//helper functions for the lexer
+///////////////////////////////////
+
+static void lt() 
+{
+    cur.repn = cin.get();
+
+    //check for <=
+    if(cin.peek() == '=') {
+        //<= 
+        cur.repn += cin.get();
+        cur.type = LESS_EQUAL_TOK;
+    } else {
+        cur.type = LESS_TOK;
+    }
+}
+
+
+static void gt() 
+{
+    cur.repn = cin.get();
+
+    //check for >=
+    if(cin.peek() == '=') {
+        //>= 
+        cur.repn += cin.get();
+        cur.type = GREATER_EQUAL_TOK;
+    } else {
+        cur.type = GREATER_TOK;
+    }
+}
+
+
+static void eq()
+{
+    cur.repn = cin.get();
+
+    //check for ==
+    if(cin.peek() == '=') {
+        //== 
+        cur.repn += cin.get();
+        cur.type = EQUAL_TOK;
+    } else {
+        cur.type = ASSIGN_TOK;
+    }
+}
+
+
+//!= processor
+static void neq()
+{
+    cur.repn = cin.get();
+
+    if(cin.peek() != '=') {
+        cur.type = INVALID_TOK;
+        return;
+    }
+
+    //consume the =
+    cur.repn += cin.get();
+    cur.type = NOT_EQUAL_TOK;
+}
+
+
+//integers
+static void integer()
+{
+    //blank integer 
+    cur.repn = "";
+    cur.type = INTEGER_TOK;
+
+    do {
+        //add the digit to the repn
+        cur.repn+= cin.get();
+    } while(isdigit(cin.peek()));
+}
+
+
+//identifiers
+static void identifier()
+{
+    //set our type correctly
+    cur.type = IDENTIFIER_TOK;
+
+    //consume the identifier
+    while(isalnum(cin.peek())) {
+        cur.repn += cin.get();
+    }
+}
+
+
+//keyword
+static void keyword(string k, Token_Type t)
+{
+    //start with empty string
+    cur.repn = "";
+
+    //consume until we no longer match
+    for(int i=0; i<k.length(); i++) {
+        //look for mismatch
+        if(cin.peek() != k[i]) {
+            identifier();
+            return;
+        }
+        cur.repn += cin.get();
+    }
+
+    //detect the end of this chain
+    if(isalnum(cin.peek())) {
+        identifier();
+        return;
+    }
+
+    //yay it's the keyword!
+    cur.type = t; 
+}
+
+
+//get the next symbol
+void next_symbol()
+{
+    //detect end of file
+    if(cin.eof()) {
+        cur.type = EOF_TOK;
+        cur.repn = "";
+        return;
+    }
+
+    //skip spaces
+    while(isspace(cin.peek())) { cin.get(); }
+
+    char c = cin.peek();
+    if(c == '+') {
+        //the plus token
+        cur.type=PLUS_TOK;
+        cur.repn = cin.get();
+    } else if(c == '-') {
+        //the minus token
+        cur.type=MINUS_TOK;
+        cur.repn = cin.get();
+    } else if(c == '<') {
+        //< group
+        lt();
+    } else if(c == '>') {
+        // > group
+        gt();
+    } else if(c == '=') {
+        // = group
+        eq();
+    } else if(c == '!') {
+        // !=
+        neq();
+    } else if(isdigit(c)) {
+        integer();
+    } else if(c == 'w') {
+        keyword("while", WHILE_TOK);
+    } else if(c == 'e') {
+        keyword("end", END_TOK);
+    } else if(c == 'p') {
+        keyword("print", PRINT_TOK);
+    } else if(isalpha(c)) {
+        cur.repn = "";
+        identifier();
+    } else {
+        cur.type = INVALID_TOK;
+        cur.repn = cin.get();
+    }
+}
+
+
+//return the current symbol
+Token curr_symbol()
+{
+    return cur;
+}
+
+//if we have the token, advance and return true 
+//false (with no advance) o.w.
+bool have(Token_Type t)  
+{
+    if(cur.type == t) {
+        return true;
+    }
+
+    return false;
+}
+
+//like have, but prints error message on failure
+void mustbe(Token_Type t)
+{
+    if(have(t)) {
+        return;
+    }
+
+    //halt on error
+    cerr << "Unexpected token: " << cur << endl;
+    exit(1);
+}
+
+
+//print the token
+std::ostream & operator<<(std::ostream &os, Token t)
+{
+    return os << TOKEN_LABEL[t.type] << ": \"" << t.repn << "\"";
+}
+</syntaxhighlight>
+
+
+== parser.h ==
+'''File:''' parser.h
+<syntaxhighlight lang="cpp">
+//Return true on succesful parsing, false otherwise
+bool parse();
+</syntaxhighlight>
+
+
+== looplang.cpp ==
+'''File:''' looplang.cpp
+<syntaxhighlight lang="cpp">
+#include <iostream>
+#include "lexer.h"
+#include "parser.h"
+
+using namespace std;
+
+int main()
+{
+    parse();
+}
+</syntaxhighlight>
+
+
+== parser.cpp ==
+'''File:''' parser.cpp
+<syntaxhighlight lang="cpp">
+#include <iostream>
+#include "lexer.h"
+#include "parser.h"
+
+//Function Prototypes
+bool parse_program();
+bool parse_statement_list(Token_Type end);
+bool parse_statement();
+bool parse_identifier_expression();
+bool parse_loop_stmnt();
+bool parse_print_stmnt();
+bool parse_expression();
+bool parse_operand();
+bool parse_operator();
+bool parse_condition();
+bool parse_comparison();
+
+/*
+< program > ::= < statement-list >
+*/
+bool parse_program() 
+{
+    next_symbol();
+    bool result = parse_statement_list(EOF_TOK);
+    
+    //verification
+    mustbe(EOF_TOK);
+    return result;
+}
+
+
+/*
+
+< statement-list > ::= < statement > |
+                      < statement > < statement-list >
+*/
+bool parse_statement_list(Token_Type end)
+{
+    do {
+        parse_statement();
+    } while(not have(end));
+
+    return true;
+}
+
+
+/*
+< statement > ::= < identifier-expression > |
+                 < loop-stmnt > |
+                 < print-stmnt > |
+                 < expression >
+*/
+bool parse_statement()
+{
+    if(have(WHILE_TOK)) {
+        return parse_loop_stmnt();
+    } else if(have(PRINT_TOK)) {
+        return parse_print_stmnt();
+    } else if(have(IDENTIFIER_TOK)) {
+        return parse_identifier_expression();
+    } else {
+        return parse_expression();
+    }
+}
+
+
+/*
+< loop-stmnt > ::= while < condition > < statement-list > end
+*/
+bool parse_loop_stmnt()
+{
+    //consume the while
+    mustbe(WHILE_TOK);
+    next_symbol();
+
+    bool result = parse_condition() and parse_statement_list(END_TOK);
+
+    //consume the end
+    mustbe(END_TOK);
+    next_symbol();
+
+    return result;
+}
+
+/*
+< print-stmnt > ::= print < expression >
+*/
+bool parse_print_stmnt() 
+{
+    //consume the print token
+    mustbe(PRINT_TOK);
+    next_symbol();
+
+    return parse_expression();
+}
+
+
+/*
+< expression > ::= < operand > |
+                  < operand > < operator > < expression >
+*/
+bool parse_expression()
+{
+    parse_operand();
+
+    if(parse_operator()) {
+        return parse_expression();
+    }
+
+    //end of expression
+    return true;
+}
+
+
+/*
+< identifier-expression > ::= < identifier > < identifier-expression-tail >
+
+< identifier-expression-tail > ::= < operator > < expression > |  
+                                   = < expression > |
+                                   LAMBDA
+*/
+bool parse_identifier_expression()
+{
+    //consume the identifier
+    mustbe(IDENTIFIER_TOK);
+    next_symbol();
+
+    //detect operator case
+    if(parse_operator()) {
+        return parse_expression();
+    } else if(have(ASSIGN_TOK)) {
+        next_symbol();
+        return parse_expression();
+    }
+
+    return true;
+}
+
+/*
+< operand > ::= < identifier > | < integer >
+*/
+bool parse_operand()
+{
+    //consume the operand
+    if(have(IDENTIFIER_TOK) or have(INTEGER_TOK)) {
+        next_symbol();
+    } else {
+        mustbe(INTEGER_TOK); //force the error
+    }
+
+    return true;
+}
+
+/*
+< operator > ::= + | -
+*/
+bool parse_operator()
+{
+    //consume the operator
+    if(have(PLUS_TOK) or have(MINUS_TOK)) {
+        next_symbol();
+        return true;
+    }
+
+    return false;
+}
+
+/*
+< condition > ::= < expression > < comparison > < expression >
+*/
+bool parse_condition()
+{
+    bool result;
+
+    result = parse_expression();
+    result = result and parse_comparison();
+    result = result and parse_expression();
+
+    return result;
+}
+
+
+/*
+< comparison > ::= < | <= | > | >= | == | !=
+*/
+bool parse_comparison()
+{
+    if(have(LESS_TOK) or have(LESS_EQUAL_TOK)) {
+        next_symbol();
+        return true;
+    } else if(have(GREATER_TOK) or have(GREATER_EQUAL_TOK)) {
+        next_symbol();
+        return true;
+    } else if(have(EQUAL_TOK)) {
+        next_symbol();
+        return true;
+    } else {
+        mustbe(NOT_EQUAL_TOK);
+        next_symbol();
+        return true;
+    }
+}
+
+
+bool parse()
+{
+    return parse_program();    
+}
+</syntaxhighlight>
+
+

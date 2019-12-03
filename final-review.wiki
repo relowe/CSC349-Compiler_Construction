@@ -1,0 +1,13 @@
+{{DISPLAYTITLE:Final Exam Review}}
+
+# What does the symbol table do?
+# Be able to construct a simple symbol table given some code written in Ledgard.
+# Sketch the pseudocode necessary to build a symbol table.
+# What is type checking?
+# What are some of the primary challenges of type checking?
+# How do we recover from type errors?
+# Given a language definition, be able to sketch out the pseudocode for its type checker.
+# How does code generation work?
+# Given a set of code templates and a simple language, be able to:
+## Generate code for a small program by hand.
+## Write the pseudocode for a code generator.
