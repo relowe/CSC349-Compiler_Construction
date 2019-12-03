@@ -1,6 +1,9 @@
 *
 !*.*
 !*/
+!Makefile
+!makefile
+!MAKEFILE
 a.out
 *.o
 *.aux
